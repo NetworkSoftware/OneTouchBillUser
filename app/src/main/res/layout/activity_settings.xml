@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="smart.pro.invoice.MainActivity">
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/toolbar_shadow" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingTop="16dip"
+        android:paddingRight="?attr/listPreferredItemPaddingRight"
+        android:text="Print Settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="?attr/colorAccent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?attr/listPreferredItemPaddingRight">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@android:id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:text="Serial No"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    android:textColor="?android:textColorPrimary" />
+
+                <TextView
+                    android:id="@android:id/summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@android:id/title"
+                    android:layout_alignStart="@android:id/title"
+                    android:layout_alignLeft="@android:id/title"
+                    android:maxLines="10"
+                    android:text="Enable serial no while printing/saving"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="?android:textColorSecondary"
+                    android:typeface="sans" />
+            </LinearLayout>
+
+            <CheckBox
+                android:id="@+id/serialCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingTop="16dip"
+        android:paddingRight="?attr/listPreferredItemPaddingRight"
+        android:text="User Settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="?attr/colorAccent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?attr/listPreferredItemPaddingRight">
+
+        <LinearLayout
+            android:id="@+id/changePassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:foreground="?selectableItemBackground"
+            android:orientation="horizontal"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="Change Password"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="?android:textColorPrimary" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>

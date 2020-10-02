@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ProInvoice</string>
+    <string name="cancel">Just Print</string>
+    <string name="ok">Ok</string>
+    <string name="additem">Add Item</string>
+    <string name="colse">cancel</string>
+
+</resources>

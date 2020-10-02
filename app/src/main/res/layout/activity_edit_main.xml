@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="smart.pro.invoice.MainActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/sans"
+                android:text="OTHERS"
+                android:textColor="#000"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pakagecostText"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="L.T + P&amp;H Charges"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pakagecost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/gray"
+                    android:fontFamily="@font/sans"
+                    android:inputType="number"
+                    android:textColorHint="#c6c6c6"
+                    android:textSize="15dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/previousText"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="Previous Balance"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/previous"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/gray"
+                    android:fontFamily="@font/sans"
+                    android:inputType="number"
+                    android:textColorHint="#c6c6c6"
+                    android:textSize="15dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="0.7"
+                    android:fontFamily="@font/sans"
+                    android:text="PARTICULARS"
+                    android:textColor="#000"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addItems"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="45dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:text="Add"
+                    android:textSize="12dp"
+                    app:icon="@drawable/ic_baseline_add_24"
+                    app:strokeColor="@color/colorAccent" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="140dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="Particulars"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="Quantity"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="Rate/Qty"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/sgstLabel"
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="SGST"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/cgstLabel"
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="CGST"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/igstLabel"
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="IGST"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:background="@drawable/rect"
+                            android:fontFamily="@font/sans"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:text="Total"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/particular_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="150dp"
+            android:layout_height="56dp"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/sans"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="@color/gray"
+            app:strokeColor="@color/gray" />
+
+        <Button
+            android:id="@+id/save"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="150dp"
+            android:layout_height="56dp"
+            android:layout_margin="5dp"
+            android:backgroundTint="#0e9d1f"
+            android:fontFamily="@font/sans"
+            android:gravity="center"
+            android:text="Update"
+            android:textColor="#fff" />
+
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context="smart.pro.invoice.MainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rect"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/particulars"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawableRight="@drawable/ic_baseline_edit_24"
+                android:fontFamily="@font/sans"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:paddingTop="15dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="15dp"
+                android:text="Particular"
+                android:textColor="@color/black" />
+
+            <ImageView
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:tint="#E91E1E"
+                android:src="@drawable/ic_outline_delete_24" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/particularsquantity"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="Quantity"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/particularsperquantity"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="Pr/Quantity"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/particularssgst"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="SGST"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/particularscgst"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="CGST"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/particularsigst"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="IGST"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/particularstotal"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/rect"
+            android:fontFamily="@font/sans"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:text="Price"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+
+</LinearLayout>
