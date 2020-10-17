@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -48,7 +50,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.deishelon.roundedbottomsheet.RoundedBottomSheetDialog;
 
-import smart.pro.invoice.HelpVideo.HelpVideoPlay;
 import smart.pro.invoice.app.AppConfig;
 import smart.pro.invoice.app.AppController;
 import smart.pro.invoice.app.BaseActivity;
@@ -122,10 +123,10 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     TextInputEditText ifcno;
     TextInputEditText previous;
     TextInputEditText pakagecost;
-
+    NestedScrollView nestScroll;
     TextView seller_name;
     TextView tittle;
-    ImageView action_settings, action_about, inapp_video;
+    ImageView action_settings, action_about;
     LinearLayout headerbar;
     RelativeLayout scroll;
 
@@ -158,11 +159,11 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         pDialog.setCancelable(false);
 
         seller_name = (findViewById(R.id.seller_name));
+        nestScroll = (findViewById(R.id.nestScroll));
         seller_name.setText(getConfigBean().brandName);
         tittle = (findViewById(R.id.tittle));
         action_about = (findViewById(R.id.action_about));
         action_settings = (findViewById(R.id.action_settings));
-        inapp_video = findViewById(R.id.inapp_video);
         headerbar = (findViewById(R.id.headerbar));
         scroll = (findViewById(R.id.scroll));
 
@@ -259,9 +260,110 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                     public void afterTextChanged(Editable s) {
                     }
                 });
+//                sgst.addTextChangedListener(new TextWatcher() {
+//                    @Override
+//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//                    }
+//
+//                    @Override
+//                    public void afterTextChanged(Editable s) {
+//                        if (checkGST.isChecked() && s.toString().length() > 0) {
+//                            int sgstVal = Integer.parseInt(s.toString());
+//                            int cgstVal = 0;
+//                            if (cgst.getText().toString().length() > 0) {
+//                                cgstVal = Integer.parseInt(cgst.getText().toString());
+//                            }
+//                            int igstVal = 0;
+//                            if (igst.getText().toString().length() > 0) {
+//                                igstVal = Integer.parseInt(igst.getText().toString());
+//                            }
+//                            if (sgstVal + cgstVal + igstVal > 18) {
+//                                sgstText.setError("Total GST must equal to 18%");
+//                            } else {
+//                                sgstText.setError(null);
+//                            }
+//                        }
+//                    }
+//                });
+//
+//                cgst.addTextChangedListener(new TextWatcher() {
+//                    @Override
+//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//                    }
+//
+//                    @Override
+//                    public void afterTextChanged(Editable c) {
+//                        if (checkGST.isChecked() && c.toString().length() > 0) {
+//                            int cgstVal = Integer.parseInt(c.toString());
+//                            int sgstVal = 0;
+//                            if (sgst.getText().toString().length() > 0) {
+//                                sgstVal = Integer.parseInt(cgst.getText().toString());
+//                            }
+//                            int igstVal = 0;
+//                            if (igst.getText().toString().length() > 0) {
+//                                igstVal = Integer.parseInt(igst.getText().toString());
+//                            }
+//                            if (cgstVal + sgstVal + igstVal > 18) {
+//                                cgstText.setError("Total GST must less than 18");
+//                            } else {
+//                                cgstText.setError(null);
+//                            }
+//                        }
+//                    }
+//                });
+//
+//                igst.addTextChangedListener(new TextWatcher() {
+//                    @Override
+//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//                    }
+//
+//                    @Override
+//                    public void afterTextChanged(Editable i) {
+//                        if (checkGST.isChecked() && i.toString().length() > 0) {
+//                            int igstVal = Integer.parseInt(i.toString());
+//                            int cgstVal = 0;
+//                            if (cgst.getText().toString().length() > 0) {
+//                                cgstVal = Integer.parseInt(cgst.getText().toString());
+//                            }
+//                            int sgstVal = 0;
+//                            if (sgst.getText().toString().length() > 0) {
+//                                sgstVal = Integer.parseInt(igst.getText().toString());
+//                            }
+//                            if (sgstVal + cgstVal + igstVal > 18) {
+//                                igst.setError("Total GST must less than 18");
+//                            } else {
+//                                igst.setError(null);
+//                            }
+//                        }
+//                    }
+//                });
                 submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (checkGST.isChecked() && cgst.getText().toString().length() <= 0 &&
+                                igst.getText().toString().length() <= 0 &&
+                                sgst.getText().toString().length() <= 0) {
+                            Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         Particularbean particularbean = new Particularbean(
                                 particular.getText().toString().replace("\"", " inch"),
                                 quantity.getText().toString(),
@@ -270,13 +372,13 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                                 sgst.getText().toString(), igst.getText().toString());
                         particularbeans.add(particularbean);
                         mparticularItemAdapter.notifyData(particularbeans);
-                        mBottomSheetDialog.cancel();
+                        bottomSheetCancel();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mBottomSheetDialog.cancel();
+                       bottomSheetCancel();
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
@@ -316,13 +418,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 startActivity(intent);
             }
         });
-        inapp_video.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplication(), HelpVideoPlay.class);
-                startActivity(intent);
-            }
-        });
+
         invoiceText = findViewById(R.id.invoiceText);
         quotationTxt = findViewById(R.id.quotationTxt);
         invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
@@ -361,7 +457,6 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 validDateGst();
-
                 mparticularItemAdapter.notifyData(checkGST.isChecked());
             }
         });
@@ -702,6 +797,19 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         getAllInvoice();
     }
 
+    private void bottomSheetCancel() {
+        if(mBottomSheetDialog!=null) {
+            mBottomSheetDialog.cancel();
+        }
+        AppConfig.hideKeyboard(MainActivity.this);
+        nestScroll.post(new Runnable() {
+            @Override
+            public void run() {
+                nestScroll.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+    }
+
     private void printFunction() {
         pDialog.setMessage("Printing...");
         showDialog();
@@ -723,8 +831,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 bankname.getText().toString(),
                 accountNo.getText().toString(),
                 ifcno.getText().toString(),
-                "0",
-                "0",
+                previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString(),
+                pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString(),
                 billingMode,
                 holdername.getText().toString(),
                 db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
@@ -759,8 +867,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 bankname.getText().toString(),
                 accountNo.getText().toString(),
                 ifcno.getText().toString(),
-                "0",
-                "0",
+                previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString(),
+                pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString(),
                 billingMode,
                 holdername.getText().toString(),
                 db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
@@ -1012,101 +1120,101 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         sgst.setText(particularbean.sgst);
         igst.setText(particularbean.igst);
 
-        sgst.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.toString().length() > 0) {
-                    int sgstVal = Integer.parseInt(s.toString());
-                    int cgstVal = 0;
-                    if (cgst.getText().toString().length() > 0) {
-                        cgstVal = Integer.parseInt(cgst.getText().toString());
-                    }
-                    int igstVal = 0;
-                    if (igst.getText().toString().length() > 0) {
-                        igstVal = Integer.parseInt(igst.getText().toString());
-                    }
-                    if (sgstVal + cgstVal + igstVal > 18) {
-                        sgstText.setError("Total GST must less than 18");
-                    } else {
-                        sgstText.setError(null);
-                    }
-                }
-            }
-        });
-
-        cgst.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable c) {
-                if (c.toString().length() > 0) {
-                    int cgstVal = Integer.parseInt(c.toString());
-                    int sgstVal = 0;
-                    if (sgst.getText().toString().length() > 0) {
-                        sgstVal = Integer.parseInt(cgst.getText().toString());
-                    }
-                    int igstVal = 0;
-                    if (igst.getText().toString().length() > 0) {
-                        igstVal = Integer.parseInt(igst.getText().toString());
-                    }
-                    if (cgstVal + sgstVal + igstVal > 18) {
-                        cgstText.setError("Total GST must less than 18");
-                    } else {
-                        cgstText.setError(null);
-                    }
-                }
-            }
-        });
-
-        igst.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable i) {
-                if (i.toString().length() > 0) {
-                    int igstVal = Integer.parseInt(i.toString());
-                    int cgstVal = 0;
-                    if (cgst.getText().toString().length() > 0) {
-                        cgstVal = Integer.parseInt(cgst.getText().toString());
-                    }
-                    int sgstVal = 0;
-                    if (sgst.getText().toString().length() > 0) {
-                        sgstVal = Integer.parseInt(igst.getText().toString());
-                    }
-                    if (sgstVal + cgstVal + igstVal > 18) {
-                        igst.setError("Total GST must less than 18");
-                    } else {
-                        igst.setError(null);
-                    }
-                }
-            }
-        });
+//        sgst.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if (s.toString().length() > 0) {
+//                    int sgstVal = Integer.parseInt(s.toString());
+//                    int cgstVal = 0;
+//                    if (cgst.getText().toString().length() > 0) {
+//                        cgstVal = Integer.parseInt(cgst.getText().toString());
+//                    }
+//                    int igstVal = 0;
+//                    if (igst.getText().toString().length() > 0) {
+//                        igstVal = Integer.parseInt(igst.getText().toString());
+//                    }
+//                    if (sgstVal + cgstVal + igstVal > 18) {
+//                        sgstText.setError("Total GST must less than 18");
+//                    } else {
+//                        sgstText.setError(null);
+//                    }
+//                }
+//            }
+//        });
+//
+//        cgst.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable c) {
+//                if (c.toString().length() > 0) {
+//                    int cgstVal = Integer.parseInt(c.toString());
+//                    int sgstVal = 0;
+//                    if (sgst.getText().toString().length() > 0) {
+//                        sgstVal = Integer.parseInt(cgst.getText().toString());
+//                    }
+//                    int igstVal = 0;
+//                    if (igst.getText().toString().length() > 0) {
+//                        igstVal = Integer.parseInt(igst.getText().toString());
+//                    }
+//                    if (cgstVal + sgstVal + igstVal > 18) {
+//                        cgstText.setError("Total GST must less than 18");
+//                    } else {
+//                        cgstText.setError(null);
+//                    }
+//                }
+//            }
+//        });
+//
+//        igst.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable i) {
+//                if (i.toString().length() > 0) {
+//                    int igstVal = Integer.parseInt(i.toString());
+//                    int cgstVal = 0;
+//                    if (cgst.getText().toString().length() > 0) {
+//                        cgstVal = Integer.parseInt(cgst.getText().toString());
+//                    }
+//                    int sgstVal = 0;
+//                    if (sgst.getText().toString().length() > 0) {
+//                        sgstVal = Integer.parseInt(igst.getText().toString());
+//                    }
+//                    if (sgstVal + cgstVal + igstVal > 18) {
+//                        igst.setError("Total GST must less than 18");
+//                    } else {
+//                        igst.setError(null);
+//                    }
+//                }
+//            }
+//        });
 
         quantity.addTextChangedListener(new TextWatcher() {
             @Override
@@ -1143,6 +1251,12 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkGST.isChecked() && cgst.getText().toString().length() <= 0 &&
+                        igst.getText().toString().length() <= 0 &&
+                        sgst.getText().toString().length() <= 0) {
+                    Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 particularbeans.get(position).setParticular(particular.getText().toString().replace("\"", " inch"));
                 particularbeans.get(position).setQuantity(quantity.getText().toString());
                 particularbeans.get(position).setPerquantity(perQuantity.getText().toString());
@@ -1150,20 +1264,32 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 particularbeans.get(position).setSgst(sgst.getText().toString());
                 particularbeans.get(position).setIgst(igst.getText().toString());
                 mparticularItemAdapter.notifyData(particularbeans);
-                mBottomSheetDialog.cancel();
+               bottomSheetCancel();
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBottomSheetDialog.cancel();
+               bottomSheetCancel();
             }
         });
         mBottomSheetDialog.setContentView(dialogView);
-        mBottomSheetDialog.show();
         mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
-        particular.requestFocus();
+        mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        BottomSheetDialog d = (BottomSheetDialog) dialog;
+                        FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
+                        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    }
+                }, 0);
+            }
+        });
+        mBottomSheetDialog.show();
     }
 
     private void validDateGst() {

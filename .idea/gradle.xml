@@ -12,10 +12,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/backdropeasy" />
             <option value="$PROJECT_DIR$/colorslider" />
-            <option value="$PROJECT_DIR$/exoplayerview" />
-            <option value="$PROJECT_DIR$/photoview" />
+            <option value="$PROJECT_DIR$/exo-player" />
             <option value="$PROJECT_DIR$/signature-pad" />
           </set>
         </option>

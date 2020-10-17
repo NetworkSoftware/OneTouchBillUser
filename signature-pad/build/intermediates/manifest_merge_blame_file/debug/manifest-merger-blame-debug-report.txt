@@ -6,11 +6,11 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="16"
-8-->D:\Android Apps\ProInvoice\ProInvoice\signature-pad\src\main\AndroidManifest.xml
+8-->C:\Users\gopal\StudioProjects\ProInvoice\signature-pad\src\main\AndroidManifest.xml
 9        android:targetSdkVersion="28" />
-9-->D:\Android Apps\ProInvoice\ProInvoice\signature-pad\src\main\AndroidManifest.xml
+9-->C:\Users\gopal\StudioProjects\ProInvoice\signature-pad\src\main\AndroidManifest.xml
 10
 11    <application />
-11-->D:\Android Apps\ProInvoice\ProInvoice\signature-pad\src\main\AndroidManifest.xml:7:5-20
+11-->C:\Users\gopal\StudioProjects\ProInvoice\signature-pad\src\main\AndroidManifest.xml:7:5-20
 12
 13</manifest>

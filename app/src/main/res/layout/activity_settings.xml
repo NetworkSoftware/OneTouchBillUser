@@ -111,7 +111,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:foreground="?selectableItemBackground"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:paddingTop="16dp"
             android:paddingBottom="16dp">
 
@@ -125,21 +125,128 @@
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="?android:textColorPrimary" />
 
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_alignStart="@android:id/title"
+                android:layout_alignLeft="@android:id/title"
+                android:maxLines="10"
+                android:text="Change password to secure invoices"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="?android:textColorSecondary"
+                android:typeface="sans" />
         </LinearLayout>
 
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"
         android:gravity="center_vertical"
-        android:visibility="gone"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
         android:paddingLeft="?attr/listPreferredItemPaddingLeft"
         android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:paddingRight="?attr/listPreferredItemPaddingRight">
+
+        <LinearLayout
+            android:id="@+id/help"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:foreground="?selectableItemBackground"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="Help &amp; Support"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="?android:textColorPrimary" />
+
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_alignStart="@android:id/title"
+                android:layout_alignLeft="@android:id/title"
+                android:maxLines="10"
+                android:text="24/7 invoice support"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="?android:textColorSecondary"
+                android:typeface="sans" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?attr/listPreferredItemPaddingRight">
+
+        <LinearLayout
+            android:id="@+id/contactus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:foreground="?selectableItemBackground"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="Contact us"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="?android:textColorPrimary" />
+
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_alignStart="@android:id/title"
+                android:layout_alignLeft="@android:id/title"
+                android:maxLines="10"
+                android:text="24/7 cutomer support"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="?android:textColorSecondary"
+                android:typeface="sans" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?attr/listPreferredItemPaddingRight"
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/inviteuser"
@@ -166,4 +273,60 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingTop="16dip"
+        android:paddingRight="?attr/listPreferredItemPaddingRight"
+        android:text="Information"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="?attr/colorAccent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:paddingRight="?attr/listPreferredItemPaddingRight">
+
+        <LinearLayout
+            android:id="@+id/contactus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:foreground="?selectableItemBackground"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="Version"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="?android:textColorPrimary" />
+
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_alignStart="@android:id/title"
+                android:layout_alignLeft="@android:id/title"
+                android:maxLines="10"
+                android:text="1.0.1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="?android:textColorSecondary"
+                android:typeface="sans" />
+        </LinearLayout>
+
+
+    </LinearLayout>
 </LinearLayout>

@@ -9,7 +9,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
@@ -71,8 +71,5 @@ dependencies {
     implementation project(':signature-pad')
 //ColorPicker
     implementation project(':colorslider')
-//videoplay
-    implementation 'com.github.HamidrezaAmz:MagicalExoPlayer:1.0.14'
-    //View of video
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
+    implementation project(':exo-player')
 }

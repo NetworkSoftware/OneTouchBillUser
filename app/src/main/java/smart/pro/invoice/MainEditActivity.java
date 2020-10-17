@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -96,6 +97,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
     private RoundedBottomSheetDialog mBottomSheetDialog;
     private String TAG = getClass().getSimpleName();
     Mainbean mainbeanUpdate = null;
+    NestedScrollView nestScroll;
 
     @Override
     protected void startDemo() {
@@ -106,6 +108,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         } catch (Exception e) {
             Log.e("xxxxxxx", e.toString());
         }
+        nestScroll = (findViewById(R.id.nestScroll));
         db = new DatabaseHelper(this);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
@@ -180,6 +183,12 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                 submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (Boolean.parseBoolean(mainbeanUpdate.includegst) && cgst.getText().toString().length() <= 0 &&
+                                igst.getText().toString().length() <= 0 &&
+                                sgst.getText().toString().length() <= 0) {
+                            Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         Particularbean particularbean = new Particularbean(
                                 particular.getText().toString().replace("\"", " inch"),
                                 quantity.getText().toString(),
@@ -188,13 +197,14 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                                 sgst.getText().toString(), igst.getText().toString());
                         particularbeans.add(particularbean);
                         mparticularItemAdapter.notifyData(particularbeans);
-                        mBottomSheetDialog.cancel();
+                        bottomSheetCancel();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mBottomSheetDialog.cancel();
+                        bottomSheetCancel();
+
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
@@ -210,7 +220,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                                 BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
                                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                             }
-                        },0);
+                        }, 0);
                     }
                 });
                 mBottomSheetDialog.show();
@@ -318,9 +328,8 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
     private void printFunction() {
         pDialog.setMessage("Printing...");
         showDialog();
-
-        mainbeanUpdate.setPrevious(previous.getText().toString());
-        mainbeanUpdate.setPakagecost(pakagecost.getText().toString());
+        mainbeanUpdate.setPrevious(previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString());
+        mainbeanUpdate.setPakagecost(pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString());
         mainbeanUpdate.setParticularbeans(particularbeans);
         String jsonVal = new Gson().toJson(mainbeanUpdate);
         getCreateInvoice(String.valueOf(mainbeanUpdate.id), jsonVal, mainbeanUpdate);
@@ -516,6 +525,12 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Boolean.parseBoolean(mainbeanUpdate.includegst) && cgst.getText().toString().length() <= 0 &&
+                        igst.getText().toString().length() <= 0 &&
+                        sgst.getText().toString().length() <= 0) {
+                    Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 particularbeans.get(position).setParticular(particular.getText().toString().replace("\"", " inch"));
                 particularbeans.get(position).setQuantity(quantity.getText().toString());
                 particularbeans.get(position).setPerquantity(perQuantity.getText().toString());
@@ -523,19 +538,34 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                 particularbeans.get(position).setSgst(sgst.getText().toString());
                 particularbeans.get(position).setIgst(igst.getText().toString());
                 mparticularItemAdapter.notifyData(particularbeans);
-                mBottomSheetDialog.cancel();
+                bottomSheetCancel();
+
             }
         });
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBottomSheetDialog.cancel();
+                bottomSheetCancel();
+
             }
         });
         mBottomSheetDialog.setContentView(dialogView);
-        mBottomSheetDialog.show();
         mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        particular.requestFocus();
+        mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        BottomSheetDialog d = (BottomSheetDialog) dialog;
+                        FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
+                        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    }
+                }, 0);
+            }
+        });
+        mBottomSheetDialog.show();
 
 
     }
@@ -600,5 +630,18 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void bottomSheetCancel() {
+        if(mBottomSheetDialog!=null) {
+            mBottomSheetDialog.cancel();
+        }
+        AppConfig.hideKeyboard(MainEditActivity.this);
+        nestScroll.post(new Runnable() {
+            @Override
+            public void run() {
+                nestScroll.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 }

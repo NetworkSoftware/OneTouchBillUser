@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="BlackN">#0b162d</color>
+    <color name="white">#ffffff</color>
+    <color name="background">#f5f5f5</color>
+    <color name="gray">#61000000</color>
+    <color name="grayDark">#4A4A4A</color>
+    <color name="blackTransparent">#07DDDDDD</color>
+    <color name="colorAccent">#000000</color>
+
+</resources>

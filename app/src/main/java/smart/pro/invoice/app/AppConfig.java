@@ -1,6 +1,7 @@
 package smart.pro.invoice.app;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -9,7 +10,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.telephony.TelephonyManager;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import smart.pro.invoice.ConfigBean;
@@ -200,5 +204,19 @@ public class AppConfig {
         // Return if the string
         // matched the ReGex
         return m.matches();
+    }
+
+    public static void hideKeyboard(AppCompatActivity activity) {
+        InputMethodManager imm = (InputMethodManager)
+                activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
+//        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+//        //Find the currently focused view, so we can grab the correct window token from it.
+//        View view = activity.getCurrentFocus();
+//        //If no view currently has focus, create a new one, just so we can grab a window token from it
+//        if (view == null) {
+//            view = new View(activity);
+//        }
+//        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

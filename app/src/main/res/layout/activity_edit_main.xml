@@ -7,6 +7,7 @@
     tools:context="smart.pro.invoice.MainActivity">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="60dp">
@@ -229,6 +230,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/particular_list"
                         android:layout_width="match_parent"
+                        android:nestedScrollingEnabled="false"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
             </HorizontalScrollView>

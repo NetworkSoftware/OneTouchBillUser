@@ -60,15 +60,6 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/inapp_video"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="right|center"
-            android:layout_margin="10dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/ic_baseline_help_outline_24"
-            android:backgroundTint="@color/white" />
-        <ImageView
             android:id="@+id/action_settings"
             android:layout_width="25dp"
             android:layout_height="25dp"
@@ -88,6 +79,7 @@
         app:cardCornerRadius="20dp">
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
@@ -834,6 +826,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/particular_list"
                             android:layout_width="match_parent"
+                            android:nestedScrollingEnabled="false"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
                 </HorizontalScrollView>

@@ -2,6 +2,7 @@ package smart.pro.invoice;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
+import smart.pro.invoice.help_video.HelpVideosActivity;
 import smart.pro.invoice.app.BaseActivity;
 
 import static smart.pro.invoice.app.AppConfig.serialNo;
@@ -25,6 +27,20 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SettingsActivity.this, ChangePassword.class));
+            }
+        });
+        ((LinearLayout) findViewById(R.id.help)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SettingsActivity.this, HelpVideosActivity.class));
+            }
+        });
+        ((LinearLayout) findViewById(R.id.contactus)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:09787665850"));
+                startActivity(intent);
             }
         });
         CheckBox serialCheckBox = findViewById(R.id.serialCheckBox);

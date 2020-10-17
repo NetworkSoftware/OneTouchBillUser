@@ -24,12 +24,11 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/app_logo"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
         <activity
             android:name="smart.pro.invoice.SplashActivity"
-            android:theme="@style/AppThemeSplash"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/AppThemeSplash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,7 +37,8 @@
         </activity>
         <activity
             android:name="smart.pro.invoice.MainActivity"
-        android:theme="@style/AppThemeNo"/>
+            android:theme="@style/AppThemeNo"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name="smart.pro.invoice.invoice.InvoiceListActivity">
             <meta-data
                 android:name="android.app.searchable"
@@ -55,12 +55,13 @@
         <activity android:name="smart.pro.invoice.CustomerReport" />
         <activity android:name="smart.pro.invoice.ChangePassword" />
         <activity android:name="smart.pro.invoice.SettingsActivity" />
-        <activity android:name="smart.pro.invoice.RequestActivity"
-            android:theme="@style/AppThemeNoreg"/>
-        <activity android:name="smart.pro.invoice.HelpVideo.HelpVideoPlay"/>
-        <activity android:name="smart.pro.invoice.HelpVideo.VideoPlay"/>
+        <activity
+            android:name="smart.pro.invoice.RequestActivity"
+            android:theme="@style/AppThemeNoreg" />
+        <activity android:name="smart.pro.invoice.help_video.HelpVideosActivity" />
 
-        <activity android:name="smart.pro.invoice.MainActivitySignature"/>
+        <activity android:name="smart.pro.invoice.MainActivitySignature" />
+
         <provider
             android:name="smart.pro.invoice.app.GenericFileProvider"
             android:authorities="smart.pro.invoice.provider"
@@ -70,8 +71,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-        <uses-library android:name ="org.apache.http.legacy" android:required ="false"/>
-
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <activity
+            android:name="com.internal.exoplayer.VideoPreviewActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:theme="@style/AppThemeVideoPlay" />
     </application>
 
 </manifest>

@@ -1,2 +1,2 @@
-include ':app', ':backdropeasy',':photoview',":signature-pad", ':colorslider',':exoplayerview'
+include ':app',':signature-pad', ':colorslider',':exo-player'
 rootProject.name = "ProInvoice"
