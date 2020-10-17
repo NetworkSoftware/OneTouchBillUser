@@ -1,6 +1,8 @@
 package smart.pro.invoice;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
@@ -30,6 +32,8 @@ public class CustomerReport extends BaseActivity {
         databaseHelper = new DatabaseHelper(this);
         getSupportActionBar().setTitle(getConfigBean().getBrandName());
         getSupportActionBar().setSubtitle("Reports");
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         AnyChartView anyChartView = findViewById(R.id.any_chart_view);
         anyChartView.setProgressBar(findViewById(R.id.progress_bar));
 
@@ -90,5 +94,22 @@ public class CustomerReport extends BaseActivity {
                 .align(Align.CENTER);
 
         anyChartView.setChart(pie);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

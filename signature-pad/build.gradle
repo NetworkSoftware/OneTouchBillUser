@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+dependencies {
+
+}
+
+Properties properties = new Properties()
+final def bintrayPropertiesFile = project.rootProject.file('bintray.properties')
+if (bintrayPropertiesFile.exists()) properties.load(bintrayPropertiesFile.newDataInputStream())
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 28
+        consumerProguardFiles 'proguard-rules-consumer.pro'
+    }
+
+    dataBinding {
+        enabled = true
+    }
+}
+
+
+

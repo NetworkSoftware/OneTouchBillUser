@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "applicationId": "com.github.gcacace.signaturepad",
+  "variantType": "LIBRARY",
+  "elements": [
+    {
+      "outputType": {
+        "type": "MERGED_MANIFESTS"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 110,
+        "versionName": "1.1.0",
+        "outputFile": "signature-pad-debug.aar",
+        "fullName": "debug",
+        "baseName": "debug",
+        "dirName": ""
+      },
+      "path": "../../library_manifest/debug/AndroidManifest.xml",
+      "properties": {
+        "packageId": "com.github.gcacace.signaturepad",
+        "split": ""
+      }
+    }
+  ]
+}

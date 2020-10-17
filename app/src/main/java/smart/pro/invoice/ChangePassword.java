@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import smart.pro.invoice.app.BaseActivity;
 import static smart.pro.invoice.app.AppConfig.CHANGE_PASSWORD;
 import static smart.pro.invoice.app.AppConfig.DELETE_INVOICE;
 import static smart.pro.invoice.app.AppConfig.LOGIN_INVOICE;
+import static smart.pro.invoice.app.AppConfig.auth_key;
 
 public class ChangePassword extends BaseActivity {
 
@@ -59,11 +61,13 @@ public class ChangePassword extends BaseActivity {
         if (sharedpreferences.contains(AppConfig.configKey)) {
             username.setText(sharedpreferences.getString(AppConfig.configKey, ""));
         }
+
         Button submitBtn = findViewById(R.id.submitBtn);
+        submitBtn.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (newpassword.getText().toString().length() <= 8) {
+                if (newpassword.getText().toString().length() < 8) {
                     showToast("Password minimum 8 characters needed");
                 } else if (!newpassword.getText().toString().equals(newCpassword.getText().toString())) {
                     showToast("Password not match");
@@ -79,7 +83,7 @@ public class ChangePassword extends BaseActivity {
 
     private void changePassword() {
         String tag_string_req = "req_register";
-        dialog.setMessage("Login ...");
+        dialog.setMessage("Updateing Password ...");
         showDialog();
         // showDialog();
         StringRequest strReq = new StringRequest(Request.Method.POST, CHANGE_PASSWORD, new Response.Listener<String>() {
@@ -95,7 +99,9 @@ public class ChangePassword extends BaseActivity {
                     if (success == 1) {
                         finish();
                     }
-
+                    else if (msg.equals("Invalid authtoken")) {
+                        logout();
+                    }
                 } catch (Exception e) {
                     Log.e("xxxxxxxxxx", e.toString());
                 }
@@ -115,6 +121,7 @@ public class ChangePassword extends BaseActivity {
                 localHashMap.put("phone", username.getText().toString());
                 localHashMap.put("oldpw", password.getText().toString());
                 localHashMap.put("newpw", newpassword.getText().toString());
+                localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 return localHashMap;
             }
         };

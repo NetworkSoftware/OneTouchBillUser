@@ -1,11 +1,13 @@
 package smart.pro.invoice.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -14,8 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import smart.pro.invoice.ConfigBean;
 import smart.pro.invoice.PreferenceBean;
 import smart.pro.invoice.R;
+import smart.pro.invoice.SplashActivity;
 
+import static smart.pro.invoice.app.AppConfig.auth_key;
+import static smart.pro.invoice.app.AppConfig.configKey;
 import static smart.pro.invoice.app.AppConfig.mypreference;
+import static smart.pro.invoice.app.AppConfig.user_id;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -28,10 +34,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(mypreference,
                 Context.MODE_PRIVATE);
         try {
-            setTheme(R.style.AppTheme);
-            int theme = Color.parseColor(ConfigBean.getInstance().colorPrimary);
+            //setTheme(R.style.AppTheme);
+            String colorPrimary=ConfigBean.getInstance().colorPrimary;
+            int theme = Color.parseColor(colorPrimary);
             setActionBar(theme);
         } catch (Exception e) {
+            Log.e("xxxxxxxxxxx", "");
+
         }
         startDemo();
     }
@@ -50,13 +59,22 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void setActionBar(int theme) {
         if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(theme);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(theme));
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(true);
-            getWindow().setStatusBarColor(theme);
         }
     }
-
+    protected void logout() {
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.remove(configKey);
+        editor.remove(auth_key);
+        editor.remove(user_id);
+        editor.commit();
+        editor.apply();
+        startActivity(new Intent(BaseActivity.this, SplashActivity.class));
+        finishAffinity();
+    }
     protected abstract void startDemo();
 
 }

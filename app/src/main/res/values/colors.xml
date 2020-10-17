@@ -3,8 +3,11 @@
     <color name="colorPrimary">#0e9d1f</color>
     <color name="colorPrimaryDark">#0e9d1f</color>
     <color name="colorAccent">#000000</color>
+    <color name="colorAccentwhite">#ffffff</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+    <color name="invoice">#9900cc</color>
+    <color name="login">#AD46CF</color>
     <color name="blue">#03A9F4</color>
     <color name="gray">#787474</color>
     <color name="orange">#FF9800</color>
@@ -15,10 +18,11 @@
     <color name="grayChip">#c6c6c6</color>
     <color name="grayLight">#F5F5F6</color>
     <color name="check">#CBCBD1</color>
-
+    <color name="reg">#ff4f5e</color>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
     //parvathy
     <color name="colorPrimaryPa">#a42924</color>
     <color name="colorPrimaryDarkPa">#a42924</color>
     <color name="colorAccentPa">#a42924</color>
-
 </resources>

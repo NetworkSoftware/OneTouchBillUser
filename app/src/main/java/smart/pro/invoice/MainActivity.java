@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -34,6 +35,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +48,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.deishelon.roundedbottomsheet.RoundedBottomSheetDialog;
 
+import smart.pro.invoice.HelpVideo.HelpVideoPlay;
 import smart.pro.invoice.app.AppConfig;
 import smart.pro.invoice.app.AppController;
 import smart.pro.invoice.app.BaseActivity;
@@ -55,8 +61,11 @@ import smart.pro.invoice.invoice.ParticularItemAdapter;
 import smart.pro.invoice.invoice.Particularbean;
 import smart.pro.invoice.seller.SellerListActivity;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
@@ -79,6 +88,7 @@ import java.util.Map;
 
 import static smart.pro.invoice.app.AppConfig.CREATE_INVOICE;
 import static smart.pro.invoice.app.AppConfig.GET_ALL_INVOICE;
+import static smart.pro.invoice.app.AppConfig.auth_key;
 import static smart.pro.invoice.app.AppConfig.user_id;
 
 public class MainActivity extends BaseActivity implements OnItemClick {
@@ -113,6 +123,12 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     TextInputEditText previous;
     TextInputEditText pakagecost;
 
+    TextView seller_name;
+    TextView tittle;
+    ImageView action_settings, action_about, inapp_video;
+    LinearLayout headerbar;
+    RelativeLayout scroll;
+
 
     private ProgressDialog pDialog;
 
@@ -136,11 +152,20 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     protected void startDemo() {
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setTitle(getConfigBean().brandName);
 
         db = new DatabaseHelper(this);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
+
+        seller_name = (findViewById(R.id.seller_name));
+        seller_name.setText(getConfigBean().brandName);
+        tittle = (findViewById(R.id.tittle));
+        action_about = (findViewById(R.id.action_about));
+        action_settings = (findViewById(R.id.action_settings));
+        inapp_video = findViewById(R.id.inapp_video);
+        headerbar = (findViewById(R.id.headerbar));
+        scroll = (findViewById(R.id.scroll));
+
 
         holdername = (findViewById(R.id.holdername));
         sellernameText = (findViewById(R.id.sellernameText));
@@ -255,12 +280,49 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
-                mBottomSheetDialog.show();
                 mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                BottomSheetDialog d = (BottomSheetDialog) dialog;
+                                FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
+                                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                            }
+                        }, 0);
+                    }
+                });
+                mBottomSheetDialog.show();
 
             }
         });
 
+
+        action_about.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), InvoiceListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        action_settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+        inapp_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), HelpVideoPlay.class);
+                startActivity(intent);
+            }
+        });
         invoiceText = findViewById(R.id.invoiceText);
         quotationTxt = findViewById(R.id.quotationTxt);
         invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
@@ -299,6 +361,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 validDateGst();
+
                 mparticularItemAdapter.notifyData(checkGST.isChecked());
             }
         });
@@ -548,10 +611,15 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         } catch (Exception e) {
             Log.e("xxxxxxxxxxxx", e.toString());
         }
-        Button print = (findViewById(R.id.print));
+        ExtendedFloatingActionButton print = (findViewById(R.id.print));
         print.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
+        headerbar.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
+        scroll.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
         selectseller.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
         selectbuyer.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
+/*        seller_name.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
+        tittle.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
+     */
         selectseller.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
         selectbuyer.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
         addItems.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
@@ -600,14 +668,16 @@ public class MainActivity extends BaseActivity implements OnItemClick {
 //                    ifcnoText.setError("Enter the IFC No");
 //                    ifcnoText.requestFocus();
 //                }
+/*
+                else if (pakagecost.getText().toString().length() <= 0) {
 
-                else if (previous.getText().toString().length() <= 0) {
-                    previousText.setError("Enter the Previous Amount");
-                    previousText.requestFocus();
-                } else if (pakagecost.getText().toString().length() <= 0) {
                     pakagecostText.setError("Enter the Package Cost");
                     pakagecostText.requestFocus();
-                } else {
+                } else if (previous.getText().toString().length() <= 0) {
+                    previousText.setError("Enter the Previous Amount");
+                    previousText.requestFocus();
+                }*/
+                else {
                     printDialog();
                 }
 
@@ -653,8 +723,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 bankname.getText().toString(),
                 accountNo.getText().toString(),
                 ifcno.getText().toString(),
-                previous.getText().toString(),
-                pakagecost.getText().toString(),
+                "0",
+                "0",
                 billingMode,
                 holdername.getText().toString(),
                 db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
@@ -689,8 +759,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 bankname.getText().toString(),
                 accountNo.getText().toString(),
                 ifcno.getText().toString(),
-                previous.getText().toString(),
-                pakagecost.getText().toString(),
+                "0",
+                "0",
                 billingMode,
                 holdername.getText().toString(),
                 db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
@@ -753,7 +823,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             }
             HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
             pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, includeGst, MainActivity.this, getConfigBean(),getPreference());
+            PdfConfig.addContent(document, mainbean, includeGst, MainActivity.this, getConfigBean(), getPreference());
 
             document.close();
 
@@ -942,6 +1012,102 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         sgst.setText(particularbean.sgst);
         igst.setText(particularbean.igst);
 
+        sgst.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.toString().length() > 0) {
+                    int sgstVal = Integer.parseInt(s.toString());
+                    int cgstVal = 0;
+                    if (cgst.getText().toString().length() > 0) {
+                        cgstVal = Integer.parseInt(cgst.getText().toString());
+                    }
+                    int igstVal = 0;
+                    if (igst.getText().toString().length() > 0) {
+                        igstVal = Integer.parseInt(igst.getText().toString());
+                    }
+                    if (sgstVal + cgstVal + igstVal > 18) {
+                        sgstText.setError("Total GST must less than 18");
+                    } else {
+                        sgstText.setError(null);
+                    }
+                }
+            }
+        });
+
+        cgst.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable c) {
+                if (c.toString().length() > 0) {
+                    int cgstVal = Integer.parseInt(c.toString());
+                    int sgstVal = 0;
+                    if (sgst.getText().toString().length() > 0) {
+                        sgstVal = Integer.parseInt(cgst.getText().toString());
+                    }
+                    int igstVal = 0;
+                    if (igst.getText().toString().length() > 0) {
+                        igstVal = Integer.parseInt(igst.getText().toString());
+                    }
+                    if (cgstVal + sgstVal + igstVal > 18) {
+                        cgstText.setError("Total GST must less than 18");
+                    } else {
+                        cgstText.setError(null);
+                    }
+                }
+            }
+        });
+
+        igst.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable i) {
+                if (i.toString().length() > 0) {
+                    int igstVal = Integer.parseInt(i.toString());
+                    int cgstVal = 0;
+                    if (cgst.getText().toString().length() > 0) {
+                        cgstVal = Integer.parseInt(cgst.getText().toString());
+                    }
+                    int sgstVal = 0;
+                    if (sgst.getText().toString().length() > 0) {
+                        sgstVal = Integer.parseInt(igst.getText().toString());
+                    }
+                    if (sgstVal + cgstVal + igstVal > 18) {
+                        igst.setError("Total GST must less than 18");
+                    } else {
+                        igst.setError(null);
+                    }
+                }
+            }
+        });
+
         quantity.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -996,6 +1162,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         mBottomSheetDialog.setContentView(dialogView);
         mBottomSheetDialog.show();
         mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         particular.requestFocus();
     }
 
@@ -1021,7 +1188,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         return billNo;
     }
 
-    private void getCreateInvoice( final String data, Mainbean tempMainbean) {
+    private void getCreateInvoice(final String data, Mainbean tempMainbean) {
         this.pDialog.setMessage("Creating...");
         showDialog();
         StringRequest local16 = new StringRequest(1, CREATE_INVOICE, new Response.Listener<String>() {
@@ -1036,6 +1203,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                         db.insertMainbean(tempMainbean);
                         printFunction(getApplicationContext(), tempMainbean, checkDigi.isChecked());
 
+                    } else if (str.equals("Invalid authtoken")) {
+                        logout();
                     }
                     Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                     return;
@@ -1052,7 +1221,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
-                localHashMap.put("surveyer", sharedpreferences.getString(user_id,""));
+                localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 localHashMap.put("data", data);
 
 
@@ -1076,9 +1246,9 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 try {
                     JSONObject jObj = new JSONObject(response);
                     int success = jObj.getInt("success");
+                    db.deleteAll();
                     if (success == 1) {
                         JSONArray jsonArray = jObj.getJSONArray("invoice");
-                        db.deleteAll();
                         for (int i = 0; i < jsonArray.length(); i++) {
                             try {
                                 JSONObject dataObject = jsonArray.getJSONObject(i);
@@ -1113,7 +1283,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap localHashMap = new HashMap();
-                localHashMap.put("surveyer",sharedpreferences.getString(user_id,""));
+                localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 return localHashMap;
             }
         };

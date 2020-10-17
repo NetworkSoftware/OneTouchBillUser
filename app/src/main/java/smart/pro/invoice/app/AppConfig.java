@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AppConfig {
 
@@ -40,8 +42,10 @@ public class AppConfig {
     public static final String user_id = "user_id";
     public static final String auth_key = "auth_key";
     public static final String serialNo = "serialNoKey";
+    public static final String isLogin = "isLoginKey";
 
-
+    public static final String ip = "http://thestockbazaar.com";
+    public static final String VIDEOPATH = "http://thestockbazaar.com/admin/invoice/video/";
     public static final String IMAGEPATH = "http://thestockbazaar.com/admin/invoice/image/";
     public static final String DOMAINPATH = "http://thestockbazaar.com/admin/invoice/";
     public static final String CREATE_INVOICE = DOMAINPATH + "create_gogenius.php";
@@ -50,6 +54,11 @@ public class AppConfig {
     public static final String DELETE_INVOICE = DOMAINPATH + "delete_gogenius.php";
     public static final String LOGIN_INVOICE = DOMAINPATH + "gogenius_login.php";
     public static final String CHANGE_PASSWORD = DOMAINPATH + "change_password.php";
+    public static final String URL_IMAGE_UPLOAD = ip + "/admin/fileUpload.php";
+    public static final String VIDEO_PLAY = DOMAINPATH + "get_all_video.php";
+
+    public static final String USER_REG = DOMAINPATH + "create_user.php";
+
     // special character to prefix the otp. Make sure this character appears only once in the sms
     public static final String OTP_DELIMITER = ":";
 
@@ -163,5 +172,33 @@ public class AppConfig {
             // Log exception
             return null;
         }
+    }
+
+    public static boolean isValidGSTNo(String str)
+    {
+        // Regex to check valid
+        // GST (Goods and Services Tax) number
+        String regex = "^[0-9]{2}[A-Z]{5}[0-9]{4}"
+                + "[A-Z]{1}[1-9A-Z]{1}"
+                + "Z[0-9A-Z]{1}$";
+
+        // Compile the ReGex
+        Pattern p = Pattern.compile(regex);
+
+        // If the string is empty
+        // return false
+        if (str == null) {
+            return false;
+        }
+
+        // Pattern class contains matcher()
+        // method to find the matching
+        // between the given string
+        // and the regular expression.
+        Matcher m = p.matcher(str);
+
+        // Return if the string
+        // matched the ReGex
+        return m.matches();
     }
 }

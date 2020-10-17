@@ -4,5 +4,8 @@
     <string name="ok">Ok</string>
     <string name="additem">Add Item</string>
     <string name="colse">cancel</string>
+    <string name="agreement">Signature\n(sign using finger on screen).</string>
+    <string name="clear_pad">Clear Pad</string>
+    <string name="save_signature">Save Signature</string>
 
 </resources>

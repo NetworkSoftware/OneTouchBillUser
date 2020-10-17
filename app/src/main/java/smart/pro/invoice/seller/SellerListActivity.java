@@ -1,6 +1,8 @@
 package smart.pro.invoice.seller;
 
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +27,8 @@ public class SellerListActivity extends BaseActivity implements OnItemClick {
     protected void startDemo() {
         setContentView(R.layout.seller_buyer_main);
         getSupportActionBar().setTitle("ALL SELLERS");
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         db = new DatabaseHelper(this);
         mainbeans.addAll(db.getAllSellerMainbeans());
         invoice_recyclerview = (findViewById(R.id.invoice_recyclerview));
@@ -54,5 +58,24 @@ public class SellerListActivity extends BaseActivity implements OnItemClick {
     public void itemEditClick(int position) {
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
 }

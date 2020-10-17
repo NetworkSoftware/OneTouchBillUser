@@ -34,6 +34,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import smart.pro.invoice.CustomerReport;
 import smart.pro.invoice.Mainbean;
 import smart.pro.invoice.OnItemClick;
 import smart.pro.invoice.R;
@@ -61,6 +62,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static smart.pro.invoice.app.AppConfig.DELETE_INVOICE;
+import static smart.pro.invoice.app.AppConfig.auth_key;
 import static smart.pro.invoice.app.AppConfig.user_id;
 
 public class InvoiceListActivity extends BaseActivity implements OnItemClick {
@@ -79,6 +81,9 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
     protected void startDemo() {
         setContentView(R.layout.all_invoice_list);
         getSupportActionBar().setTitle("BILLING LIST");
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         invoiceText = findViewById(R.id.invoiceText);
         quotationTxt = findViewById(R.id.quotationTxt);
         invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
@@ -321,6 +326,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search)
                 .getActionView();
+
         searchView.setSearchableInfo(searchManager
                 .getSearchableInfo(getComponentName()));
         searchView.setMaxWidth(Integer.MAX_VALUE);
@@ -350,12 +356,18 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        if (id == android.R.id.home) {
+            finish();
+        }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
             return true;
         }
-
+        if (id == R.id.action_chart) {
+            Intent intent = new Intent(InvoiceListActivity.this, CustomerReport.class);
+            startActivity(intent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -374,6 +386,8 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
                         mainbeans.remove(position);
                         minvoiceItemAdapter.notifyData(mainbeans);
                         getSupportActionBar().setSubtitle("INVOICE (" + db.getAllMainbeans("INVOICE").size() + ") - QUOTATION (" + db.getAllMainbeans("QUOTATION").size() + ")");
+                    } else if (str.equals("Invalid authtoken")) {
+                        logout();
                     }
                     Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                     return;
@@ -391,6 +405,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
             protected Map<String, String> getParams() {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
                 localHashMap.put("surveyer", sharedpreferences.getString(user_id,""));
+                localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 localHashMap.put("id", AppConfig.intToString(Integer.parseInt(mainbeans.get(position).sellerbillNo), 5));
                 return localHashMap;
             }

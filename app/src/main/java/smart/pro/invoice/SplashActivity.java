@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -24,6 +26,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static smart.pro.invoice.app.AppConfig.LOGIN_INVOICE;
+import static smart.pro.invoice.app.AppConfig.isLogin;
 import static smart.pro.invoice.app.AppConfig.mypreference;
 import static smart.pro.invoice.app.AppConfig.serialNo;
 
@@ -44,6 +48,7 @@ public class SplashActivity extends AppCompatActivity {
     TextInputLayout usernameTxt;
     TextInputEditText password;
     TextInputLayout passwordText;
+    TextView request;
     ProgressDialog dialog;
     protected SharedPreferences sharedpreferences;
 
@@ -63,11 +68,18 @@ public class SplashActivity extends AppCompatActivity {
         usernameTxt = findViewById(R.id.usernameTxt);
         password = findViewById(R.id.password);
         passwordText = findViewById(R.id.passwordText);
-
+        request=findViewById(R.id.request);
         if (sharedpreferences.contains(AppConfig.configKey)) {
             username.setText(sharedpreferences.getString(AppConfig.configKey, ""));
         }
-        Button submitBtn = findViewById(R.id.submitBtn);
+
+        request.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SplashActivity.this, RequestActivity.class));
+            }
+        });
+        FloatingActionButton submitBtn = findViewById(R.id.submitBtn);
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,16 +106,16 @@ public class SplashActivity extends AppCompatActivity {
                     JSONObject jObj = new JSONObject(response);
                     int success = jObj.getInt("success");
                     String msg = jObj.getString("message");
-                    String auth_key = jObj.getString("auth_key");
-                    String user_id = jObj.getString("user_id");
-                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-                    String data = jObj.getString("data");
                     if (success == 1) {
+                        String auth_key = jObj.getString("auth_key");
+                        String user_id = jObj.getString("user_id");
+                        String data = jObj.getString("data");
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.putString(AppConfig.configKey, username.getText().toString());
                         editor.putString(AppConfig.auth_key, auth_key);
                         editor.putString(AppConfig.user_id, user_id);
                         editor.commit();
+
                         PreferenceBean.getInstance().setSerial(sharedpreferences.getBoolean(serialNo, false));
 
                         ConfigBean configBean = new Gson().fromJson(data, ConfigBean.class);
@@ -120,6 +132,7 @@ public class SplashActivity extends AppCompatActivity {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                         finish();
                     }
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 
                 } catch (Exception e) {
                     Log.e("xxxxxxxxxx", e.toString());

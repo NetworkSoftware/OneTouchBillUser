@@ -3,6 +3,7 @@ package smart.pro.invoice;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -11,6 +12,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +51,8 @@ import smart.pro.invoice.invoice.InvoiceListActivity;
 import smart.pro.invoice.invoice.ParticularItemAdapter;
 import smart.pro.invoice.invoice.Particularbean;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -68,6 +73,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static smart.pro.invoice.app.AppConfig.UPDATE_INVOICE;
+import static smart.pro.invoice.app.AppConfig.auth_key;
 import static smart.pro.invoice.app.AppConfig.user_id;
 
 public class MainEditActivity extends BaseActivity implements OnItemClick {
@@ -103,6 +109,9 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         db = new DatabaseHelper(this);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
+        getSupportActionBar().setTitle("ProInvoice");
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         previous = (findViewById(R.id.previous));
@@ -189,8 +198,22 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
-                mBottomSheetDialog.show();
                 mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                BottomSheetDialog d = (BottomSheetDialog) dialog;
+                                FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
+                                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                            }
+                        },0);
+                    }
+                });
+                mBottomSheetDialog.show();
 
             }
         });
@@ -392,13 +415,13 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         }
     }
 
-    @Override
+  /*  @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -411,7 +434,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         }
         return super.onOptionsItemSelected(item);
     }
-
+*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -531,6 +554,8 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                         db.updateMainbean(tempMainbean);
                         printFunction(getApplicationContext(), tempMainbean, Boolean.parseBoolean(tempMainbean.includegst));
+                    } else if (str.equals("Invalid authtoken")) {
+                        logout();
                     }
                     Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                     return;
@@ -549,6 +574,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
                 localHashMap.put("id", AppConfig.intToString(Integer.parseInt(tempMainbean.sellerbillNo), 5));
                 localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 localHashMap.put("data", data);
 
 
@@ -558,5 +584,21 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         AppController.getInstance().addToRequestQueue(local16, TAG);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

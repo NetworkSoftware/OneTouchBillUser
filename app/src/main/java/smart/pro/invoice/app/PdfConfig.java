@@ -87,7 +87,8 @@ public class PdfConfig {
         byte[] byteArray = stream.toByteArray();
         Image img = Image.getInstance(byteArray);
         String[] getLogoRect = configBean.getLogoRect().split("#");
-        img.scaleAbsolute(Integer.parseInt(getLogoRect[0]), Integer.parseInt(getLogoRect[1]));
+       img.scaleAbsolute(Integer.parseInt(getLogoRect[0]), Integer.parseInt(getLogoRect[1]));
+        //img.scaleAbsolute(60, 60);
         table01.addCell(createTextImage(img));
         String billMode = (((mainbean.getBillmode() != null && mainbean.getBillmode().length() > 0) ? mainbean.getBillmode() : "INVOICE"));
 

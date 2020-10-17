@@ -42,7 +42,7 @@
                     android:background="@null"
                     android:backgroundTint="@null"
                     android:fontFamily="@font/sans"
-                    android:inputType="text"
+                    android:inputType="textCapWords|text"
                     android:paddingLeft="10dp"
                     android:textColorHint="#c6c6c6"
                     android:textSize="15dp" />
