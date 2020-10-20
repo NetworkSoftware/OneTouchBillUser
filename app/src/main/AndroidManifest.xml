@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="smart.pro.invoice">
+    package="smart.pro.pattasukadai">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
@@ -16,7 +16,7 @@
         android:value="GlideModule" />
 
     <application
-        android:name="smart.pro.invoice.app.AppController"
+        android:name="smart.pro.pattasukadai.app.AppController"
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="@string/app_name"
@@ -27,7 +27,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="smart.pro.invoice.SplashActivity"
+            android:name="smart.pro.pattasukadai.SplashActivity"
             android:theme="@style/AppThemeSplash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,10 +36,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="smart.pro.invoice.MainActivity"
+            android:name="smart.pro.pattasukadai.MainActivity"
             android:theme="@style/AppThemeNo"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name="smart.pro.invoice.invoice.InvoiceListActivity">
+        <activity android:name="smart.pro.pattasukadai.invoice.InvoiceListActivity">
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -49,22 +49,22 @@
             </intent-filter>
 
         </activity>
-        <activity android:name="smart.pro.invoice.seller.SellerListActivity" />
-        <activity android:name="smart.pro.invoice.buyer.BuyerListActivity" />
-        <activity android:name="smart.pro.invoice.MainEditActivity" />
-        <activity android:name="smart.pro.invoice.CustomerReport" />
-        <activity android:name="smart.pro.invoice.ChangePassword" />
-        <activity android:name="smart.pro.invoice.SettingsActivity" />
+        <activity android:name="smart.pro.pattasukadai.seller.SellerListActivity" />
+        <activity android:name="smart.pro.pattasukadai.buyer.BuyerListActivity" />
+        <activity android:name="smart.pro.pattasukadai.MainEditActivity" />
+        <activity android:name="smart.pro.pattasukadai.CustomerReport" />
+        <activity android:name="smart.pro.pattasukadai.ChangePassword" />
+        <activity android:name="smart.pro.pattasukadai.SettingsActivity" />
         <activity
-            android:name="smart.pro.invoice.RequestActivity"
+            android:name="smart.pro.pattasukadai.RequestActivity"
             android:theme="@style/AppThemeNoreg" />
-        <activity android:name="smart.pro.invoice.help_video.HelpVideosActivity" />
+        <activity android:name="smart.pro.pattasukadai.help_video.HelpVideosActivity" />
 
-        <activity android:name="smart.pro.invoice.MainActivitySignature" />
+        <activity android:name="smart.pro.pattasukadai.MainActivitySignature" />
 
         <provider
-            android:name="smart.pro.invoice.app.GenericFileProvider"
-            android:authorities="smart.pro.invoice.provider"
+            android:name="smart.pro.pattasukadai.app.GenericFileProvider"
+            android:authorities="smart.pro.pattasukadai.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

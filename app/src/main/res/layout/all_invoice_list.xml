@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="smart.pro.invoice.MainActivity">
+    tools:context="smart.pro.pattasukadai.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

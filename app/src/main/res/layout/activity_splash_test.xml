@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/banner1"
-    tools:context="smart.pro.invoice.MainActivity">
+    tools:context="smart.pro.pattasukadai.MainActivity">
 
     <LinearLayout
         android:id="@+id/headerbar"

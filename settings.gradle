@@ -1,2 +1,2 @@
 include ':app',':signature-pad', ':colorslider',':exo-player'
-rootProject.name = "ProInvoice"
+rootProject.name = "Pattasu Kadai"
