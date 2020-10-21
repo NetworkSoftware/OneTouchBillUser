@@ -29,9 +29,6 @@ import smart.pro.pattasukadai.PreferenceBean;
 import smart.pro.pattasukadai.StoreMainbean;
 import smart.pro.pattasukadai.invoice.Particularbean;
 
-import static smart.pro.pattasukadai.app.PdfConfig.createTextCellBorder;
-import static smart.pro.pattasukadai.app.PdfConfig.createTextCellCenter;
-import static smart.pro.pattasukadai.app.PdfConfig.createTextCellLeftRight;
 
 
 public class PatasuPdfConfig {
@@ -108,16 +105,16 @@ public class PatasuPdfConfig {
         PdfPTable table3 = new PdfPTable(1);
         table3.setWidthPercentage(100);
         table3.setWidths(new int[]{1,1,1});
-        ArrayList<StoreMainbean> storeMainbeans = mainbean.getStoreMainbeans();
+        ArrayList<Particularbean> storeMainbeans = mainbean.getParticularbeans();
         for (int i = 0; i < storeMainbeans.size(); i++) {
-            StoreMainbean fields = storeMainbeans.get(i);
+            Particularbean fields = storeMainbeans.get(i);
 
             table3.addCell(createTextCellBorder("No", nameFont));
             table3.addCell(createTextCellBorder("Items", nameFont));
             table3.addCell(createTextCellBorder("Total Price:", nameFont));
 
-            table3.addCell(createTextCellBorder(fields.getStoreid(), nameFont));
-            table3.addCell(createTextCellBorder(fields.getStorename(), nameFont));
+            table3.addCell(createTextCellBorder(fields.getId(), nameFont));
+            table3.addCell(createTextCellBorder(fields.getParticular(), nameFont));
             table3.addCell(createTextCellBorder("", nameFont));
 
             table3.setSplitLate(false);

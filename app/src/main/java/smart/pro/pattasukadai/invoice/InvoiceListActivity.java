@@ -63,6 +63,7 @@ import java.util.Map;
 
 import static smart.pro.pattasukadai.app.AppConfig.DELETE_INVOICE;
 import static smart.pro.pattasukadai.app.AppConfig.auth_key;
+import static smart.pro.pattasukadai.app.AppConfig.shopIdKey;
 import static smart.pro.pattasukadai.app.AppConfig.user_id;
 
 public class InvoiceListActivity extends BaseActivity implements OnItemClick {
@@ -73,8 +74,6 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
     InvoiceItemAdapter minvoiceItemAdapter;
     DatabaseHelper db;
     private SearchView searchView;
-    String billingMode = "INVOICE";
-    TextView invoiceText, quotationTxt;
     private String TAG = getClass().getSimpleName();
 
     @Override
@@ -84,45 +83,12 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        invoiceText = findViewById(R.id.invoiceText);
-        quotationTxt = findViewById(R.id.quotationTxt);
-        invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-
-        invoiceText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                billingMode = "INVOICE";
-                mainbeans = new ArrayList<>();
-                mainbeans.addAll(db.getAllMainbeans(billingMode));
-                minvoiceItemAdapter.notifyData(mainbeans);
-                invoiceText.setTextColor(Color.parseColor("#ffffff"));
-                invoiceText.setBackground(getResources().getDrawable(R.drawable.rectangle_filed));
-                invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-                quotationTxt.setTextColor(Color.parseColor("#000000"));
-                quotationTxt.setBackground(getResources().getDrawable(R.drawable.rectangle_trans));
-            }
-        });
-        quotationTxt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                billingMode = "QUOTATION";
-                mainbeans = new ArrayList<>();
-                mainbeans.addAll(db.getAllMainbeans(billingMode));
-                minvoiceItemAdapter.notifyData(mainbeans);
-                quotationTxt.setTextColor(Color.parseColor("#ffffff"));
-                quotationTxt.setBackground(getResources().getDrawable(R.drawable.rectangle_filed));
-                quotationTxt.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-                invoiceText.setTextColor(Color.parseColor("#000000"));
-                invoiceText.setBackground(getResources().getDrawable(R.drawable.rectangle_trans));
-            }
-        });
-
 
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
         db = new DatabaseHelper(this);
-        mainbeans.addAll(db.getAllMainbeans(billingMode));
-        getSupportActionBar().setSubtitle("INVOICE (" + mainbeans.size() + ") - QUOTATION (" + db.getAllMainbeans("QUOTATION").size() + ")");
+        mainbeans.addAll(db.getAllMainbeans());
+        getSupportActionBar().setSubtitle("INVOICE (" + mainbeans.size() + ")");
         invoice_recyclerview = (findViewById(R.id.invoice_recyclerview));
         minvoiceItemAdapter = new InvoiceItemAdapter(this, mainbeans, this);
         final LinearLayoutManager addManager1 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -134,15 +100,10 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
     @Override
     protected void onStart() {
         super.onStart();
-        billingMode = "INVOICE";
         mainbeans = new ArrayList<>();
-        mainbeans.addAll(db.getAllMainbeans(billingMode));
+        mainbeans.addAll(db.getAllMainbeans());
         minvoiceItemAdapter.notifyData(mainbeans);
-        invoiceText.setTextColor(Color.parseColor("#ffffff"));
-        invoiceText.setBackground(getResources().getDrawable(R.drawable.rectangle_filed));
-        quotationTxt.setTextColor(Color.parseColor("#000000"));
-        quotationTxt.setBackground(getResources().getDrawable(R.drawable.rectangle_trans));
-        getSupportActionBar().setSubtitle("INVOICE (" + mainbeans.size() + ") - QUOTATION (" + db.getAllMainbeans("QUOTATION").size() + ")");
+       getSupportActionBar().setSubtitle("INVOICE (" + mainbeans.size() +  ")");
 
     }
 
@@ -161,43 +122,8 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
 
     private void printClick(int position) {
         pDialog.setMessage("Printing...");
-        showDialog();
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this, R.style.RoundShapeTheme);
-
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.delete_dialog, null);
-        TextView title = dialogView.findViewById(R.id.title);
-        title.setText("Do you want add digital signature?");
-        dialogBuilder.setTitle("Alert")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        printFunction(getApplicationContext(), mainbeans.get(position), true);
-                        dialog.cancel();
-                    }
-                })
-                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        hideDialog();
-                    }
-                })
-                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        printFunction(getApplicationContext(), mainbeans.get(position), false);
-                        dialogInterface.cancel();
-                    }
-                });
-        dialogBuilder.setView(dialogView);
-        final AlertDialog b = dialogBuilder.create();
-        b.setCancelable(false);
-
-
-        WindowManager.LayoutParams lp = b.getWindow().getAttributes();
-        lp.dimAmount = 0.8f;
-        b.show();
+        printFunction( mainbeans.get(position));
+        pDialog.cancel();
     }
 
     @Override
@@ -211,7 +137,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
     }
 
 
-    public void printFunction(Context context, Mainbean mainbean, boolean isDigital) {
+    public void printFunction(Mainbean mainbean) {
 
         try {
 
@@ -220,7 +146,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
             if (!dir.exists())
                 dir.mkdirs();
             Log.d("PDFCreator", "PDF Path: " + path);
-            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getSellerbillNo() + ".pdf");
+            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getDbid() + ".pdf");
             if (file.exists()) {
                 file.delete();
             }
@@ -242,14 +168,10 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
             document.open();
             PdfConfig.addMetaData(document);
 
-            boolean includeGst = false;
-            if (mainbean.includegst != null && mainbean.includegst.length() > 0 &&
-                    Boolean.parseBoolean(mainbean.includegst)) {
-                includeGst = true;
-            }
-            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
+            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray),
+                    Image.getInstance(byteArray1), false, getConfigBean());
             pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, includeGst, InvoiceListActivity.this, getConfigBean(),getPreference());
+            PdfConfig.addContent(document, mainbean, true, InvoiceListActivity.this, getConfigBean(),getPreference());
             //AppConfig.addTitlePage(document);
 
 
@@ -385,7 +307,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
                         db.deleteMainbean(mainbeans.get(position));
                         mainbeans.remove(position);
                         minvoiceItemAdapter.notifyData(mainbeans);
-                        getSupportActionBar().setSubtitle("INVOICE (" + db.getAllMainbeans("INVOICE").size() + ") - QUOTATION (" + db.getAllMainbeans("QUOTATION").size() + ")");
+                        getSupportActionBar().setSubtitle("INVOICE (" + db.getAllMainbeans().size() + ")");
                     } else if (str.equals("Invalid authtoken")) {
                         logout();
                     }
@@ -404,9 +326,10 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
-                localHashMap.put("surveyer", sharedpreferences.getString(user_id,""));
+                localHashMap.put("userid", sharedpreferences.getString(user_id,""));
+                localHashMap.put("shopid", sharedpreferences.getString(shopIdKey,""));
                 localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
-                localHashMap.put("id", AppConfig.intToString(Integer.parseInt(mainbeans.get(position).sellerbillNo), 5));
+                localHashMap.put("id", mainbeans.get(position).getDbid());
                 return localHashMap;
             }
         };

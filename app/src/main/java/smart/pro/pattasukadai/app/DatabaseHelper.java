@@ -9,6 +9,7 @@ import android.util.Log;
 
 import smart.pro.pattasukadai.Mainbean;
 import smart.pro.pattasukadai.invoice.Particularbean;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -28,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "Genius_db2";
+    private static final String DATABASE_NAME = "patasu_main2";
 
 
     public DatabaseHelper(Context context) {
@@ -65,26 +66,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Mainbean.COLUMN_SELLERNAME, mainbean.getSellername());
         values.put(Mainbean.COLUMN_SELLERADDRESS, mainbean.getSelleraddress());
         values.put(Mainbean.COLUMN_SELLERPHONE, mainbean.getSellerphone());
-        values.put(Mainbean.COLUMN_SELLERGSTNO, mainbean.getSellergstNo());
-        values.put(Mainbean.COLUMN_SELLERBILLNO, mainbean.getSellerbillNo());
+        values.put(Mainbean.COLUMN_DB_ID, mainbean.getDbid());
         values.put(Mainbean.COLUMN_BUYERNAME, mainbean.getBuyername());
-        values.put(Mainbean.COLUMN_BUYERADDRESS, mainbean.getBuyeraddress());
         values.put(Mainbean.COLUMN_BUYERPHONE, mainbean.getBuyerphone());
-        values.put(Mainbean.COLUMN_BUYERGSTNO, mainbean.getBuyergstNo());
-        values.put(Mainbean.COLUMN_CGST, mainbean.getCgst());
-        values.put(Mainbean.COLUMN_SGST, mainbean.getSgst());
-        values.put(Mainbean.COLUMN_IGST, mainbean.getIgst());
-        values.put(Mainbean.COLUMN_BANKNAME, mainbean.getBankname());
-        values.put(Mainbean.COLUMN_ACCOUNTNO, mainbean.getAccountNo());
-        values.put(Mainbean.COLUMN_IFCNO, mainbean.getIfcno());
-        values.put(Mainbean.COLUMN_PREVIOUS, mainbean.getPrevious());
-        values.put(Mainbean.COLUMN_PAKAGECOST, mainbean.getPakagecost());
-        values.put(Mainbean.COLUMN_BILLMODE, mainbean.getBillmode());
-        values.put(Mainbean.COLUMN_CUSTOMER_ID, mainbean.getCustomerid());
-        values.put(Mainbean.COLUMN_HOLDER_NAME, mainbean.getHoldername());
-        values.put(Mainbean.COLUMN_INCLUDE_GST, mainbean.getIncludegst());
         values.put(Mainbean.COLUMN_TIMESTAMP, mainbean.getTimestamp());
-
         values.put(Mainbean.COLUMN_PARTICULAR, new Gson().toJson(mainbean.getParticularbeans()));
 
         // insert row
@@ -97,7 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public Mainbean getMainbean(long id) {
+    public Mainbean getMainbean(String id) {
         // get readable database as we are not inserting anything
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -106,59 +91,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         Mainbean.COLUMN_SELLERNAME,
                         Mainbean.COLUMN_SELLERADDRESS,
                         Mainbean.COLUMN_SELLERPHONE,
-                        Mainbean.COLUMN_SELLERGSTNO,
-                        Mainbean.COLUMN_SELLERBILLNO,
+                        Mainbean.COLUMN_DB_ID,
                         Mainbean.COLUMN_BUYERNAME,
-                        Mainbean.COLUMN_BUYERADDRESS,
                         Mainbean.COLUMN_BUYERPHONE,
-                        Mainbean.COLUMN_BUYERGSTNO,
-                        Mainbean.COLUMN_CGST,
-                        Mainbean.COLUMN_SGST,
-                        Mainbean.COLUMN_IGST,
-                        Mainbean.COLUMN_BANKNAME,
-                        Mainbean.COLUMN_ACCOUNTNO,
-                        Mainbean.COLUMN_IFCNO,
-                        Mainbean.COLUMN_PREVIOUS,
-                        Mainbean.COLUMN_PAKAGECOST,
                         Mainbean.COLUMN_PARTICULAR,
-                        Mainbean.COLUMN_CUSTOMER_ID,
                         Mainbean.COLUMN_TIMESTAMP},
-                Mainbean.COLUMN_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
+                Mainbean.COLUMN_DB_ID + "=?",
+                new String[]{id}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
-
-        // prepare Mainbean object
         String partiStr = cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PARTICULAR));
         ArrayList<Particularbean> particularbeans = (ArrayList<Particularbean>) new Gson().fromJson(partiStr, List.class);
-        Mainbean mainbean = new Mainbean(
-                cursor.getInt(cursor.getColumnIndex(Mainbean.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERNAME)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERADDRESS)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERPHONE)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERGSTNO)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERBILLNO)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERNAME)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERADDRESS)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERPHONE)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERGSTNO)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CGST)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SGST)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IGST)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BANKNAME)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_ACCOUNTNO)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IFCNO)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PREVIOUS)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PAKAGECOST)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BILLMODE)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_HOLDER_NAME)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_TIMESTAMP)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID)),
-                cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_INCLUDE_GST)),
-                particularbeans
-        );
-
+        Mainbean mainbean = new Mainbean();
+        mainbean.setId(cursor.getInt(cursor.getColumnIndex(Mainbean.COLUMN_ID)));
+        mainbean.setDbid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_DB_ID)));
+        mainbean.setSellername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERNAME)));
+        mainbean.setSelleraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERADDRESS)));
+        mainbean.setSellerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERPHONE)));
+        mainbean.setBuyername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERNAME)));
+        mainbean.setBuyerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERPHONE)));
+        mainbean.setTimestamp(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_TIMESTAMP)));
+        mainbean.setParticularbeans(particularbeans);
         // close the db connection
         cursor.close();
 
@@ -170,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Select All Query
 
-        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " ORDER BY " + Mainbean.COLUMN_SELLERBILLNO + " DESC LIMIT 1";
+        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " ORDER BY " + Mainbean.COLUMN_DB_ID + " DESC LIMIT 1";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -179,7 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Mainbean mainbean = new Mainbean();
-                mainbean.setSellerbillNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERBILLNO)));
+                mainbean.setDbid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_DB_ID)));
                 Mainbeans.add(mainbean);
             } while (cursor.moveToNext());
         }
@@ -192,16 +146,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<Mainbean> getAllMainbeans(String mode) {
+    public List<Mainbean> getAllMainbeans() {
         List<Mainbean> Mainbeans = new ArrayList<>();
 
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " WHERE " + Mainbean.COLUMN_BILLMODE + " = '" + mode + "' ORDER BY " +
-                Mainbean.COLUMN_SELLERBILLNO + " DESC";
-        if (mode.equals("all")) {
-            selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " ORDER BY " +
-                    Mainbean.COLUMN_SELLERBILLNO + " DESC";
-        }
+
+        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " ORDER BY " + Mainbean.COLUMN_DB_ID + " DESC";
+
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -213,30 +163,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }.getType());
                 Mainbean mainbean = new Mainbean();
                 mainbean.setId(cursor.getInt(cursor.getColumnIndex(Mainbean.COLUMN_ID)));
+                mainbean.setDbid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_DB_ID)));
                 mainbean.setSellername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERNAME)));
                 mainbean.setSelleraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERADDRESS)));
                 mainbean.setSellerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERPHONE)));
-                mainbean.setSellergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERGSTNO)));
-                mainbean.setSellerbillNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERBILLNO)));
                 mainbean.setBuyername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERNAME)));
-                mainbean.setBuyeraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERADDRESS)));
                 mainbean.setBuyerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERPHONE)));
-                mainbean.setBuyergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERGSTNO)));
-                mainbean.setCgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CGST)));
-                mainbean.setSgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SGST)));
-                mainbean.setIgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IGST)));
-                mainbean.setBankname(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BANKNAME)));
-                mainbean.setAccountNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_ACCOUNTNO)));
-                mainbean.setIfcno(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IFCNO)));
-                mainbean.setPrevious(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PREVIOUS)));
-                mainbean.setPakagecost(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PAKAGECOST)));
                 mainbean.setTimestamp(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_TIMESTAMP)));
                 mainbean.setParticularbeans(particularbeans);
-                mainbean.setBillmode(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BILLMODE)));
-                mainbean.setCustomerid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID)));
-                mainbean.setIncludegst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_INCLUDE_GST)));
-                mainbean.setHoldername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_HOLDER_NAME)));
-
                 Mainbeans.add(mainbean);
             } while (cursor.moveToNext());
         }
@@ -248,65 +182,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return Mainbeans;
     }
 
-    public String getUniqueSeller(String name, String contact) {
-
-        String customerId = "";
-        // Select All Query
-
-        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " WHERE " + Mainbean.COLUMN_BUYERPHONE + " ='" + contact + "' LIMIT 1";
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        if (cursor.moveToFirst()) {
-            do {
-                try {
-                    customerId = cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID));
-                } catch (Exception e) {
-                }
-                break;
-            } while (cursor.moveToNext());
-        }
-        Log.e("xxxxxxx", customerId);
-        if (customerId == null || customerId.length() <= 0) {
-            selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " WHERE " + Mainbean.COLUMN_BUYERNAME + " ='" + name + "' LIMIT 1";
-            cursor = db.rawQuery(selectQuery, null);
-            if (cursor.moveToFirst()) {
-                do {
-                    try {
-                        customerId = cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID));
-                    } catch (Exception e) {
-                    }
-                    break;
-                } while (cursor.moveToNext());
-            }
-        }
-        Log.e("xxxxxxx", customerId);
-
-        if (customerId == null || customerId.length() <= 0) {
-            selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " GROUP BY " + Mainbean.COLUMN_CUSTOMER_ID;
-            cursor = db.rawQuery(selectQuery, null);
-            ArrayList<Mainbean> mainList = new ArrayList<>();
-            if (cursor.moveToFirst()) {
-                do {
-                    mainList.add(new Mainbean());
-                } while (cursor.moveToNext());
-            }
-            customerId = AppConfig.intToString(mainList.size() + 1, 4);
-        }
-        Log.e("xxxxxxx", customerId);
-
-        // close db connection
-        db.close();
-
-        // return Mainbeans list
-        return customerId;
-    }
-
-
     public List<Mainbean> getAllSellerMainbeans() {
         List<Mainbean> Mainbeans = new ArrayList<>();
 
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " GROUP BY " + Mainbean.COLUMN_HOLDER_NAME;
+        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " GROUP BY " + Mainbean.COLUMN_SELLERPHONE;
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -319,24 +199,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 mainbean.setSellername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERNAME)));
                 mainbean.setSelleraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERADDRESS)));
                 mainbean.setSellerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERPHONE)));
-                mainbean.setSellergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERGSTNO)));
-                mainbean.setSellerbillNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERBILLNO)));
                 mainbean.setBuyername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERNAME)));
-                mainbean.setBuyeraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERADDRESS)));
                 mainbean.setBuyerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERPHONE)));
-                mainbean.setBuyergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERGSTNO)));
-                mainbean.setCgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CGST)));
-                mainbean.setSgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SGST)));
-                mainbean.setIgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IGST)));
-                mainbean.setBankname(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BANKNAME)));
-                mainbean.setAccountNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_ACCOUNTNO)));
-                mainbean.setIfcno(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IFCNO)));
-                mainbean.setPrevious(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PREVIOUS)));
-                mainbean.setPakagecost(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PAKAGECOST)));
-                mainbean.setHoldername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_HOLDER_NAME)));
-                mainbean.setBillmode(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BILLMODE)));
-                mainbean.setCustomerid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID)));
-                mainbean.setIncludegst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_INCLUDE_GST)));
                 mainbean.setTimestamp(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_TIMESTAMP)));
 
                 Mainbeans.add(mainbean);
@@ -354,8 +218,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Mainbean> Mainbeans = new ArrayList<>();
 
         // Select All Query
-        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " GROUP BY " +
-                Mainbean.COLUMN_CUSTOMER_ID;
+        String selectQuery = "SELECT  * FROM " + Mainbean.TABLE_NAME + " GROUP BY " + Mainbean.COLUMN_BUYERPHONE;
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -368,24 +231,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 mainbean.setSellername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERNAME)));
                 mainbean.setSelleraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERADDRESS)));
                 mainbean.setSellerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERPHONE)));
-                mainbean.setSellergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERGSTNO)));
-                mainbean.setSellerbillNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SELLERBILLNO)));
                 mainbean.setBuyername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERNAME)));
-                mainbean.setBuyeraddress(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERADDRESS)));
                 mainbean.setBuyerphone(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERPHONE)));
-                mainbean.setBuyergstNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BUYERGSTNO)));
-                mainbean.setCgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CGST)));
-                mainbean.setSgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_SGST)));
-                mainbean.setIgst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IGST)));
-                mainbean.setBankname(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BANKNAME)));
-                mainbean.setAccountNo(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_ACCOUNTNO)));
-                mainbean.setIfcno(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_IFCNO)));
-                mainbean.setPrevious(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PREVIOUS)));
-                mainbean.setPakagecost(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_PAKAGECOST)));
-                mainbean.setBillmode(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_BILLMODE)));
-                mainbean.setHoldername(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_HOLDER_NAME)));
-                mainbean.setCustomerid(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_CUSTOMER_ID)));
-                mainbean.setIncludegst(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_INCLUDE_GST)));
                 mainbean.setTimestamp(cursor.getString(cursor.getColumnIndex(Mainbean.COLUMN_TIMESTAMP)));
 
                 Mainbeans.add(mainbean);
@@ -448,30 +295,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Mainbean.COLUMN_SELLERNAME, mainbean.getSellername());
         values.put(Mainbean.COLUMN_SELLERADDRESS, mainbean.getSelleraddress());
         values.put(Mainbean.COLUMN_SELLERPHONE, mainbean.getSellerphone());
-        values.put(Mainbean.COLUMN_SELLERGSTNO, mainbean.getSellergstNo());
-        values.put(Mainbean.COLUMN_SELLERBILLNO, mainbean.getSellerbillNo());
         values.put(Mainbean.COLUMN_BUYERNAME, mainbean.getBuyername());
-        values.put(Mainbean.COLUMN_BUYERADDRESS, mainbean.getBuyeraddress());
         values.put(Mainbean.COLUMN_BUYERPHONE, mainbean.getBuyerphone());
-        values.put(Mainbean.COLUMN_BUYERGSTNO, mainbean.getBuyergstNo());
-        values.put(Mainbean.COLUMN_CGST, mainbean.getCgst());
-        values.put(Mainbean.COLUMN_SGST, mainbean.getSgst());
-        values.put(Mainbean.COLUMN_IGST, mainbean.getIgst());
-        values.put(Mainbean.COLUMN_BANKNAME, mainbean.getBankname());
-        values.put(Mainbean.COLUMN_ACCOUNTNO, mainbean.getAccountNo());
-        values.put(Mainbean.COLUMN_IFCNO, mainbean.getIfcno());
-        values.put(Mainbean.COLUMN_PREVIOUS, mainbean.getPrevious());
-        values.put(Mainbean.COLUMN_PAKAGECOST, mainbean.getPakagecost());
-        values.put(Mainbean.COLUMN_BILLMODE, mainbean.getBillmode());
-        values.put(Mainbean.COLUMN_CUSTOMER_ID, mainbean.getCustomerid());
-        values.put(Mainbean.COLUMN_HOLDER_NAME, mainbean.getHoldername());
-        values.put(Mainbean.COLUMN_INCLUDE_GST, mainbean.getIncludegst());
-
         values.put(Mainbean.COLUMN_PARTICULAR, new Gson().toJson(mainbean.getParticularbeans()));
 
         // updating row
-        return db.update(Mainbean.TABLE_NAME, values, Mainbean.COLUMN_SELLERBILLNO + " = ?",
-                new String[]{String.valueOf(mainbean.getSellerbillNo())});
+        return db.update(Mainbean.TABLE_NAME, values, Mainbean.COLUMN_DB_ID + " = ?",
+                new String[]{String.valueOf(mainbean.getDbid())});
     }
 
     public void deleteMainbean(Mainbean mainbean) {

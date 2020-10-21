@@ -54,16 +54,6 @@
                         android:textColor="@color/BlackN"
                         android:textSize="18dp" />
 
-                    <TextView
-                        android:id="@+id/custid"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="3dp"
-                        android:fontFamily="@font/sans"
-                        android:text="0001"
-                        android:textColor="@color/BlackN"
-                        android:textSize="13dp" />
 
                     <TextView
                         android:id="@+id/buyerphone"
@@ -76,27 +66,9 @@
                         android:textColor="@color/BlackN"
                         android:textSize="13dp" />
 
-                    <TextView
-                        android:id="@+id/buyeraddress"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="3dp"
-                        android:fontFamily="@font/sans"
-                        android:text="134, 1st Floor\n4 th street,Ganthipuram\nCBE 12"
-                        android:textColor="@color/BlackN"
-                        android:textSize="13dp" />
 
-                    <TextView
-                        android:id="@+id/buyergstNo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="3dp"
-                        android:fontFamily="@font/sans"
-                        android:text="GST: 7865484739437"
-                        android:textColor="@color/BlackN"
-                        android:textSize="13dp" />
+
+
                 </LinearLayout>
 
                 <ImageView

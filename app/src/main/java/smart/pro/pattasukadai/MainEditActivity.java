@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +47,9 @@ import smart.pro.pattasukadai.app.AppConfig;
 import smart.pro.pattasukadai.app.AppController;
 import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
+import smart.pro.pattasukadai.app.DbPattasuHelper;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.Pattasu;
 import smart.pro.pattasukadai.app.PdfConfig;
 import smart.pro.pattasukadai.invoice.ParticularItemAdapter;
 import smart.pro.pattasukadai.invoice.Particularbean;
@@ -74,20 +77,20 @@ import java.util.Map;
 
 import static smart.pro.pattasukadai.app.AppConfig.UPDATE_INVOICE;
 import static smart.pro.pattasukadai.app.AppConfig.auth_key;
+import static smart.pro.pattasukadai.app.AppConfig.shopIdKey;
 import static smart.pro.pattasukadai.app.AppConfig.user_id;
 
 public class MainEditActivity extends BaseActivity implements OnItemClick {
 
-    TextInputLayout previousText;
-    TextInputLayout pakagecostText;
 
-    TextInputEditText previous;
-    TextInputEditText pakagecost;
+    TextInputEditText customerName;
+    TextInputEditText whatsappNumber;
 
 
     private ProgressDialog pDialog;
 
     private DatabaseHelper db;
+    private DbPattasuHelper dbPattasuHelper;
 
 
     RecyclerView particular_list;
@@ -98,194 +101,42 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
     Mainbean mainbeanUpdate = null;
     NestedScrollView nestScroll;
 
+    EditText no, quantity;
+    TextView proName, proTotal, grandTotal;
+    int selectedPosition = -1;
+    MaterialButton addItems;
+
     @Override
     protected void startDemo() {
         setContentView(R.layout.activity_edit_main);
         try {
             mainbeanUpdate = (Mainbean) getIntent().getSerializableExtra("data");
-            getSupportActionBar().setSubtitle(AppConfig.intToString(Integer.parseInt(mainbeanUpdate.sellerbillNo), 5));
+            getSupportActionBar().setSubtitle(AppConfig.intToString(Integer.parseInt(mainbeanUpdate.dbid), 5));
         } catch (Exception e) {
             Log.e("xxxxxxx", e.toString());
         }
         nestScroll = (findViewById(R.id.nestScroll));
         db = new DatabaseHelper(this);
+        dbPattasuHelper = new DbPattasuHelper(this);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
-        getSupportActionBar().setTitle("ProInvoice");
+        getSupportActionBar().setTitle(getString(R.string.app_name));
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_round_arrow_back_24);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        previous = (findViewById(R.id.previous));
-        pakagecost = (findViewById(R.id.pakagecost));
-        previousText = (findViewById(R.id.previousText));
-        pakagecostText = (findViewById(R.id.pakagecostText));
-        MaterialButton addItems = (findViewById(R.id.addItems));
-        addItems.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        addItems.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        addItems.setIconTint(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-
-        addItems.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBottomSheetDialog = new RoundedBottomSheetDialog(MainEditActivity.this);
-                LayoutInflater inflater = MainEditActivity.this.getLayoutInflater();
-                View dialogView = inflater.inflate(R.layout.add_particulars, null);
-                AutoCompleteTextView particular = dialogView.findViewById(R.id.particular);
-                ArrayAdapter<String> adapter =
-                        new ArrayAdapter<String>(MainEditActivity.this, android.R.layout.simple_list_item_1, db.getAllcategoryMainbeans());
-                particular.setThreshold(1);
-                particular.setAdapter(adapter);
-                TextInputLayout cgstText = dialogView.findViewById(R.id.cgstText);
-                TextInputLayout sgstText = dialogView.findViewById(R.id.sgstText);
-                TextInputLayout igstText = dialogView.findViewById(R.id.igstText);
-                TextInputEditText cgst = dialogView.findViewById(R.id.cgst);
-                TextInputEditText sgst = dialogView.findViewById(R.id.sgst);
-                TextInputEditText igst = dialogView.findViewById(R.id.igst);
-                Button submitBtn = dialogView.findViewById(R.id.submitBtn);
-                Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
-
-                TextInputEditText quantity = dialogView.findViewById(R.id.quantity);
-                TextInputEditText perQuantity = dialogView.findViewById(R.id.perQuantity);
-                particular.requestFocus();
-                quantity.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-                perQuantity.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                    }
-                });
-                submitBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (Boolean.parseBoolean(mainbeanUpdate.includegst) && cgst.getText().toString().length() <= 0 &&
-                                igst.getText().toString().length() <= 0 &&
-                                sgst.getText().toString().length() <= 0) {
-                            Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Particularbean particularbean = new Particularbean(
-                                particular.getText().toString().replace("\"", " inch"),
-                                quantity.getText().toString(),
-                                perQuantity.getText().toString(),
-                                cgst.getText().toString(),
-                                sgst.getText().toString(), igst.getText().toString());
-                        particularbeans.add(particularbean);
-                        mparticularItemAdapter.notifyData(particularbeans);
-                        bottomSheetCancel();
-                    }
-                });
-                cancelBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        bottomSheetCancel();
-
-                    }
-                });
-                mBottomSheetDialog.setContentView(dialogView);
-                mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                BottomSheetDialog d = (BottomSheetDialog) dialog;
-                                FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
-                                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                            }
-                        }, 0);
-                    }
-                });
-                mBottomSheetDialog.show();
-
-            }
-        });
-
-
-        if (Boolean.parseBoolean(mainbeanUpdate.includegst)) {
-            ((TextView) findViewById(R.id.cgstLabel)).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.sgstLabel)).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.igstLabel)).setVisibility(View.VISIBLE);
-        } else {
-            ((TextView) findViewById(R.id.cgstLabel)).setVisibility(View.GONE);
-            ((TextView) findViewById(R.id.sgstLabel)).setVisibility(View.GONE);
-            ((TextView) findViewById(R.id.igstLabel)).setVisibility(View.GONE);
-        }
+        customerName = (findViewById(R.id.customerName));
+        whatsappNumber = (findViewById(R.id.whatsappNumber));
 
         particular_list = (findViewById(R.id.particular_list));
-        mparticularItemAdapter = new ParticularItemAdapter(this, particularbeans, this, Boolean.parseBoolean(
-                mainbeanUpdate.includegst));
+        mparticularItemAdapter = new ParticularItemAdapter(this, particularbeans, this);
         final LinearLayoutManager addManager1 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         particular_list.setLayoutManager(addManager1);
         particular_list.setAdapter(mparticularItemAdapter);
 
 
-        previous.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (previous.toString().length() > 0) {
-                    previousText.setError(null);
-                }
-            }
-        });
-        pakagecost.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (pakagecost.toString().length() > 0) {
-                    pakagecostText.setError(null);
-                }
-            }
-        });
-
-
-        previous.setText(mainbeanUpdate.previous);
-        pakagecost.setText(mainbeanUpdate.pakagecost);
+        customerName.setText(mainbeanUpdate.buyername);
+        whatsappNumber.setText(mainbeanUpdate.buyerphone);
         particularbeans = mainbeanUpdate.getParticularbeans();
         mparticularItemAdapter.notifyData(particularbeans);
 
@@ -298,16 +149,13 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         });
 
         Button print = (findViewById(R.id.save));
-        print.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
         print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (previous.getText().toString().length() <= 0) {
-                    previousText.setError("Enter the Previous Amount");
-                    previousText.requestFocus();
-                } else if (pakagecost.getText().toString().length() <= 0) {
-                    pakagecostText.setError("Enter the Package Cost");
-                    pakagecostText.requestFocus();
+                if (customerName.getText().toString().length() <= 0 ||
+                        whatsappNumber.getText().toString().length() <= 0) {
+                    Toast.makeText(getApplicationContext(), "Enter all details", Toast.LENGTH_SHORT).show();
+                    return;
                 } else {
                     if (ContextCompat.checkSelfPermission(MainEditActivity.this,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -322,16 +170,121 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
 
         });
 
+
+        proName = findViewById(R.id.proName);
+        no = findViewById(R.id.no);
+        quantity = findViewById(R.id.quantity);
+        proTotal = findViewById(R.id.proTotal);
+        grandTotal = findViewById(R.id.grandTotal);
+        no.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                getAutoFill(s.toString());
+            }
+        });
+        quantity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                getAutoFill(no.getText().toString());
+            }
+        });
+        addItems = findViewById(R.id.addItems);
+        addItems.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (proTotal.getText().toString().length() > 0) {
+                    if (selectedPosition == -1) {
+                        Particularbean particularbean = new Particularbean();
+                        particularbean.setId(no.getText().toString());
+                        particularbean.setParticular(proName.getText().toString());
+                        particularbean.setPerquantity(dbPattasuHelper.getPattasu(no.getText().toString()).price);
+                        particularbean.setQuantity(quantity.getText().toString());
+                        particularbeans.add(particularbean);
+                    } else {
+                        particularbeans.get(selectedPosition).setId(no.getText().toString());
+                        particularbeans.get(selectedPosition).setParticular(proName.getText().toString());
+                        particularbeans.get(selectedPosition).setPerquantity(dbPattasuHelper.getPattasu(no.getText().toString()).price);
+                        particularbeans.get(selectedPosition).setQuantity(quantity.getText().toString());
+                    }
+                    no.requestFocus();
+                    selectedPosition = -1;
+                    addItems.setText("ADD");
+                    mparticularItemAdapter.notifyData(particularbeans);
+                    proName.setText("");
+                    proTotal.setText("");
+                    no.setText("");
+                    quantity.setText("");
+
+                    calculateTotal();
+
+                }
+            }
+        });
+
+    }
+
+    private void calculateTotal() {
+        float grandT = 0;
+        for (int i = 0; i < particularbeans.size(); i++) {
+            Particularbean particularbean = particularbeans.get(i);
+            String quanS = "1";
+            if (particularbean.getQuantity() != null && particularbean.getQuantity().length() > 0) {
+                quanS = particularbean.getQuantity();
+            }
+            float quan = Float.parseFloat(quanS);
+            float perQuanPri = Float.parseFloat(particularbean.perquantity);
+            grandT = grandT + quan * perQuanPri;
+        }
+        grandTotal.setText("₹ " + grandT);
+    }
+
+    private void getAutoFill(String s) {
+        if (s.length() > 0) {
+            if (dbPattasuHelper.getPattasu(s) != null) {
+                Pattasu pattasu = dbPattasuHelper.getPattasu(s);
+                proName.setText(pattasu.items);
+                int quan = 1;
+                if (quantity.getText().toString().length() > 0) {
+                    quan = Integer.parseInt(quantity.getText().toString());
+                }
+                proTotal.setText("* " + pattasu.getPrice() + " = " + quan * Integer.parseInt(pattasu.price));
+            } else {
+                proName.setText("");
+                proTotal.setText("");
+            }
+        } else {
+            proName.setText("");
+            proTotal.setText("");
+        }
     }
 
     private void printFunction() {
         pDialog.setMessage("Printing...");
         showDialog();
-        mainbeanUpdate.setPrevious(previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString());
-        mainbeanUpdate.setPakagecost(pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString());
+        mainbeanUpdate.setBuyername(customerName.getText().toString());
+        mainbeanUpdate.setBuyerphone(whatsappNumber.getText().toString());
         mainbeanUpdate.setParticularbeans(particularbeans);
-        String jsonVal = new Gson().toJson(mainbeanUpdate);
-        getCreateInvoice(String.valueOf(mainbeanUpdate.id), jsonVal, mainbeanUpdate);
+        getCreateInvoice(mainbeanUpdate);
 
 
     }
@@ -347,7 +300,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             pDialog.dismiss();
     }
 
-    public void printFunction(Context context, Mainbean mainbean, boolean isDigital) {
+    public void printFunction(Mainbean mainbean) {
 
         try {
 
@@ -356,7 +309,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             if (!dir.exists())
                 dir.mkdirs();
             Log.d("PDFCreator", "PDF Path: " + path);
-            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getSellerbillNo() + ".pdf");
+            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getDbid() + ".pdf");
             if (file.exists()) {
                 file.delete();
             }
@@ -378,14 +331,9 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             document.open();
             PdfConfig.addMetaData(document);
 
-            boolean includeGst = false;
-            if (mainbean.includegst != null && mainbean.includegst.length() > 0 &&
-                    Boolean.parseBoolean(mainbean.includegst)) {
-                includeGst = true;
-            }
-            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
+            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), false, getConfigBean());
             pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, includeGst, MainEditActivity.this, getConfigBean(), getPreference());
+            PdfConfig.addContent(document, mainbean, true, MainEditActivity.this, getConfigBean(), getPreference());
 
             document.close();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -457,119 +405,20 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
     public void itemDeleteClick(int position) {
         particularbeans.remove(position);
         mparticularItemAdapter.notifyData(particularbeans);
+        calculateTotal();
     }
 
     @Override
     public void itemEditClick(int position) {
-        mBottomSheetDialog = new RoundedBottomSheetDialog(MainEditActivity.this);
-        LayoutInflater inflater = MainEditActivity.this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_particulars, null);
-        AutoCompleteTextView particular = dialogView.findViewById(R.id.particular);
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(MainEditActivity.this, android.R.layout.simple_list_item_1, db.getAllcategoryMainbeans());
-        particular.setThreshold(1);
-        particular.setAdapter(adapter);
-        TextInputLayout cgstText = dialogView.findViewById(R.id.cgstText);
-        TextInputLayout sgstText = dialogView.findViewById(R.id.sgstText);
-        TextInputLayout igstText = dialogView.findViewById(R.id.igstText);
-        TextInputEditText cgst = dialogView.findViewById(R.id.cgst);
-        TextInputEditText sgst = dialogView.findViewById(R.id.sgst);
-        TextInputEditText igst = dialogView.findViewById(R.id.igst);
-        Button submitBtn = dialogView.findViewById(R.id.submitBtn);
-        Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
-        submitBtn.setText("Update");
-        TextInputEditText quantity = dialogView.findViewById(R.id.quantity);
-        TextInputEditText perQuantity = dialogView.findViewById(R.id.perQuantity);
-
-        Particularbean particularbean = particularbeans.get(position);
-        quantity.setText(particularbean.quantity);
-        particular.setText(particularbean.particular.replace(" inch", "\""));
-        perQuantity.setText(particularbean.perquantity);
-        cgst.setText(particularbean.cgst);
-        sgst.setText(particularbean.sgst);
-        igst.setText(particularbean.igst);
-
-        quantity.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        perQuantity.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Boolean.parseBoolean(mainbeanUpdate.includegst) && cgst.getText().toString().length() <= 0 &&
-                        igst.getText().toString().length() <= 0 &&
-                        sgst.getText().toString().length() <= 0) {
-                    Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                particularbeans.get(position).setParticular(particular.getText().toString().replace("\"", " inch"));
-                particularbeans.get(position).setQuantity(quantity.getText().toString());
-                particularbeans.get(position).setPerquantity(perQuantity.getText().toString());
-                particularbeans.get(position).setCgst(cgst.getText().toString());
-                particularbeans.get(position).setSgst(sgst.getText().toString());
-                particularbeans.get(position).setIgst(igst.getText().toString());
-                mparticularItemAdapter.notifyData(particularbeans);
-                bottomSheetCancel();
-
-            }
-        });
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetCancel();
-
-            }
-        });
-        mBottomSheetDialog.setContentView(dialogView);
-        mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        BottomSheetDialog d = (BottomSheetDialog) dialog;
-                        FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
-                        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    }
-                }, 0);
-            }
-        });
-        mBottomSheetDialog.show();
-
-
+        if (selectedPosition == -1) {
+            selectedPosition = position;
+            no.setText(particularbeans.get(position).id);
+            quantity.setText(particularbeans.get(position).quantity);
+            addItems.setText("Update");
+        }
     }
 
-    private void getCreateInvoice(final String mId, final String data, Mainbean tempMainbean) {
+    private void getCreateInvoice(Mainbean tempMainbean) {
         this.pDialog.setMessage("Updating...");
         showDialog();
         StringRequest local16 = new StringRequest(1, UPDATE_INVOICE, new Response.Listener<String>() {
@@ -582,7 +431,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
                     if (localJSONObject1.getInt("success") == 1) {
                         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                         db.updateMainbean(tempMainbean);
-                        printFunction(getApplicationContext(), tempMainbean, Boolean.parseBoolean(tempMainbean.includegst));
+                        printFunction(tempMainbean);
                     } else if (str.equals("Invalid authtoken")) {
                         logout();
                     }
@@ -601,10 +450,11 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
-                localHashMap.put("id", AppConfig.intToString(Integer.parseInt(tempMainbean.sellerbillNo), 5));
-                localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("id",tempMainbean.dbid);
+                localHashMap.put("userid", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("shopid", sharedpreferences.getString(shopIdKey, ""));
                 localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
-                localHashMap.put("data", data);
+                localHashMap.put("data", new Gson().toJson(tempMainbean));
 
 
                 return localHashMap;
@@ -632,7 +482,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
     }
 
     private void bottomSheetCancel() {
-        if(mBottomSheetDialog!=null) {
+        if (mBottomSheetDialog != null) {
             mBottomSheetDialog.cancel();
         }
         AppConfig.hideKeyboard(MainEditActivity.this);

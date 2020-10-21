@@ -34,6 +34,10 @@ public class AppConfig {
     public static final String SMS_ORIGIN = "CSFARM";
     public static final String mypreference = "mypref";
     public static final String configKey = "configKey";
+    public static final String shopNameKey = "shopNameKey";
+    public static final String shopPhoneKey = "shopPhoneKey";
+    public static final String shopAddreesKey = "shopAddressKey";
+    public static final String shopIdKey = "shopIdKey";
     public static final String user_id = "user_id";
     public static final String auth_key = "auth_key";
     public static final String serialNo = "serialNoKey";
@@ -43,14 +47,14 @@ public class AppConfig {
 
 
     public static final String ip = "http://thestockbazaar.com";
-    public static final String VIDEOPATH = "http://thestockbazaar.com/admin/proinvoice/video/";
-    public static final String IMAGEPATH = "http://thestockbazaar.com/admin/proinvoice/image/";
-    public static final String DOMAINPATH = "http://thestockbazaar.com/admin/proinvoice/";
-    public static final String CREATE_INVOICE = DOMAINPATH + "create_gogenius.php";
-    public static final String GET_ALL_INVOICE = DOMAINPATH + "get_all_gogenius.php";
-    public static final String UPDATE_INVOICE = DOMAINPATH + "update_gogenius.php";
-    public static final String DELETE_INVOICE = DOMAINPATH + "delete_gogenius.php";
-    public static final String LOGIN_INVOICE = DOMAINPATH + "gogenius_login.php";
+    public static final String VIDEOPATH = "http://thestockbazaar.com/admin/pattasukadai/video/";
+    public static final String IMAGEPATH = "http://thestockbazaar.com/admin/pattasukadai/image/";
+    public static final String DOMAINPATH = "http://thestockbazaar.com/admin/pattasukadai/";
+    public static final String CREATE_INVOICE = DOMAINPATH + "create_bill.php";
+    public static final String GET_ALL_DATA = DOMAINPATH + "get_all_data.php";
+    public static final String UPDATE_INVOICE = DOMAINPATH + "update_bill.php";
+    public static final String DELETE_INVOICE = DOMAINPATH + "delete_bill.php";
+    public static final String LOGIN_USER = DOMAINPATH + "user_login.php";
     public static final String CHANGE_PASSWORD = DOMAINPATH + "change_password.php";
     public static final String URL_IMAGE_UPLOAD = ip + "/admin/fileUpload.php";
     public static final String VIDEO_PLAY = DOMAINPATH + "get_all_video.php";

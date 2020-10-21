@@ -145,17 +145,6 @@
                         android:textColor="@color/darkgray"
                         android:textSize="12dp" />
 
-                    <TextView
-                        android:id="@+id/sellergstNo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/sans"
-                        android:text="GST: 7865484739437"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/darkgray"
-                        android:textSize="12dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -240,17 +229,6 @@
                         android:textColor="@color/darkgray"
                         android:textSize="12dp" />
 
-                    <TextView
-                        android:id="@+id/buyergstNo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="5dp"
-                        android:fontFamily="@font/sans"
-                        android:text="GST: 7865484739437"
-                        android:textAlignment="textEnd"
-                        android:textColor="@color/darkgray"
-                        android:textSize="12dp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

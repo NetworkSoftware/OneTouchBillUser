@@ -45,7 +45,7 @@ public class CustomerReport extends BaseActivity {
             }
         });
 
-        List<Mainbean> mainbeans = databaseHelper.getAllMainbeans("INVOICE");
+        List<Mainbean> mainbeans = databaseHelper.getAllMainbeans();
         Map<String, Integer> productCostMap = new HashMap<>();
         for (int i = 0; i < mainbeans.size(); i++) {
             ArrayList<Particularbean> particularbeans = mainbeans.get(i).particularbeans;
@@ -59,14 +59,7 @@ public class CustomerReport extends BaseActivity {
                     float quan = Float.parseFloat(bean.quantity);
                     float perQuanPri = Float.parseFloat(bean.perquantity);
                     float total = quan * perQuanPri;
-                    if (Boolean.parseBoolean(mainbeans.get(i).includegst)) {
-                        float cgstVal = ((bean.cgst.length() > 0 ? Float.parseFloat(bean.cgst) : 0) * total) / 100f;
-                        float igstVal = ((bean.igst.length() > 0 ? Float.parseFloat(bean.igst) : 0) * total) / 100f;
-                        float sgstVal = ((bean.sgst.length() > 0 ? Float.parseFloat(bean.sgst) : 0) * total) / 100f;
-                        productCostMap.put(particularbeans.get(k).particular, (int) (value + total + igstVal + sgstVal + cgstVal));
-                    } else {
-                        productCostMap.put(particularbeans.get(k).particular, (int) (value + total));
-                    }
+                    productCostMap.put(particularbeans.get(k).particular, (int) (value + total));
                 } catch (Exception e) {
                     Log.e("xxxxxxxxxxxxx", e.toString());
                 }
@@ -95,6 +88,7 @@ public class CustomerReport extends BaseActivity {
 
         anyChartView.setChart(pie);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

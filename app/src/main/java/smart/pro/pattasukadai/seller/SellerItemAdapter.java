@@ -81,11 +81,7 @@ public class SellerItemAdapter extends RecyclerView.Adapter<SellerItemAdapter.My
                 Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))));
         holder.sellername.setText(bean.getSellername());
         holder.selleraddress.setText(bean.getSelleraddress());
-        holder.sellergstNo.setText("GST: " + bean.getSellergstNo());
         holder.sellerphone.setText("Ph: " + bean.getSellerphone());
-        holder.sellerbankName.setText("Bank Name: " + bean.getBankname());
-        holder.selleraccountNo.setText("Account No: " + bean.getAccountNo());
-        holder.sellerifcNo.setText("IFSC No: " + bean.getIfcno());
 
 
         holder.checkView.setOnClickListener(new View.OnClickListener() {

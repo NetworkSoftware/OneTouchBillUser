@@ -25,6 +25,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,6 +37,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,7 +55,9 @@ import smart.pro.pattasukadai.app.AppConfig;
 import smart.pro.pattasukadai.app.AppController;
 import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
+import smart.pro.pattasukadai.app.DbPattasuHelper;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.Pattasu;
 import smart.pro.pattasukadai.app.PdfConfig;
 import smart.pro.pattasukadai.buyer.BuyerListActivity;
 import smart.pro.pattasukadai.invoice.InvoiceListActivity;
@@ -82,71 +86,41 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static smart.pro.pattasukadai.app.AppConfig.CREATE_INVOICE;
-import static smart.pro.pattasukadai.app.AppConfig.GET_ALL_INVOICE;
+import static smart.pro.pattasukadai.app.AppConfig.GET_ALL_DATA;
 import static smart.pro.pattasukadai.app.AppConfig.auth_key;
+import static smart.pro.pattasukadai.app.AppConfig.shopAddreesKey;
+import static smart.pro.pattasukadai.app.AppConfig.shopIdKey;
+import static smart.pro.pattasukadai.app.AppConfig.shopNameKey;
+import static smart.pro.pattasukadai.app.AppConfig.shopPhoneKey;
 import static smart.pro.pattasukadai.app.AppConfig.user_id;
 
 public class MainActivity extends BaseActivity implements OnItemClick {
 
-    TextInputLayout sellernameText;
-    TextInputLayout selleraddressText;
-    TextInputLayout sellerphoneText;
-    TextInputLayout sellergstNoText;
-    TextInputLayout sellerbillNoText;
-    TextInputLayout buyernameText;
-    TextInputLayout buyeraddressText;
-    TextInputLayout buyerphoneText;
-    TextInputLayout buyergstNoText;
-    TextInputLayout banknameText;
-    TextInputLayout accountNoText;
-    TextInputLayout ifcnoText;
-    TextInputLayout previousText;
-    TextInputLayout pakagecostText;
-
-    TextInputEditText sellername;
-    TextInputEditText selleraddress;
-    TextInputEditText sellerphone;
-    TextInputEditText sellergstNo;
-    TextInputEditText sellerbillNo;
-    TextInputEditText buyername;
-    TextInputEditText buyeraddress;
-    TextInputEditText buyerphone;
-    TextInputEditText buyergstNo;
-    TextInputEditText bankname;
-    TextInputEditText accountNo;
-    TextInputEditText ifcno;
-    TextInputEditText previous;
-    TextInputEditText pakagecost;
     NestedScrollView nestScroll;
     TextView seller_name;
     TextView tittle;
     ImageView action_settings, action_about;
     LinearLayout headerbar;
     RelativeLayout scroll;
-
-
     private ProgressDialog pDialog;
-
     private DatabaseHelper db;
-
-    MaterialButton selectseller;
-    MaterialButton selectbuyer;
-    CheckBox checkGST, checkDigi;
+    private DbPattasuHelper dbPattasuHelper;
 
     RecyclerView particular_list;
     private ArrayList<Particularbean> particularbeans = new ArrayList<>();
     ParticularItemAdapter mparticularItemAdapter;
-    TextView invoiceText, quotationTxt;
-    String billingMode = "INVOICE";
-    TextInputEditText holdername;
     private RoundedBottomSheetDialog mBottomSheetDialog;
     private String TAG = getClass().getSimpleName();
-
+    EditText no, quantity;
+    TextView proName, proTotal, grandTotal;
+    int selectedPosition = -1;
+    MaterialButton addItems;
 
     @Override
     protected void startDemo() {
@@ -154,201 +128,145 @@ public class MainActivity extends BaseActivity implements OnItemClick {
 
 
         db = new DatabaseHelper(this);
+        dbPattasuHelper = new DbPattasuHelper(this);
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
-        seller_name = (findViewById(R.id.seller_name));
-        nestScroll = (findViewById(R.id.nestScroll));
-        seller_name.setText(getConfigBean().brandName);
-        tittle = (findViewById(R.id.tittle));
-        action_about = (findViewById(R.id.action_about));
-        action_settings = (findViewById(R.id.action_settings));
-        headerbar = (findViewById(R.id.headerbar));
-        scroll = (findViewById(R.id.scroll));
+        seller_name = findViewById(R.id.seller_name);
+        seller_name.setText(sharedpreferences.getString(shopNameKey, ""));
+        nestScroll = findViewById(R.id.nestScroll);
+        tittle = findViewById(R.id.tittle);
+        action_about = findViewById(R.id.action_about);
+        action_settings = findViewById(R.id.action_settings);
+        headerbar = findViewById(R.id.headerbar);
+        scroll = findViewById(R.id.scroll);
+        proName = findViewById(R.id.proName);
+        no = findViewById(R.id.no);
+        quantity = findViewById(R.id.quantity);
+        proTotal = findViewById(R.id.proTotal);
+        grandTotal = findViewById(R.id.grandTotal);
+        no.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-        previousText = (findViewById(R.id.previousText));
-        pakagecostText = (findViewById(R.id.pakagecostText));
+            }
 
+            @Override
+            public void afterTextChanged(Editable s) {
+                getAutoFill(s.toString());
+            }
+        });
+        quantity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        previous = (findViewById(R.id.previous));
-        pakagecost = (findViewById(R.id.pakagecost));
-           MaterialButton addItems = (findViewById(R.id.addItems));
-        validDateGst();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                getAutoFill(no.getText().toString());
+            }
+        });
+        addItems = findViewById(R.id.addItems);
         addItems.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (proTotal.getText().toString().length() > 0) {
+                    if (selectedPosition == -1) {
+                        Particularbean particularbean = new Particularbean();
+                        particularbean.setId(no.getText().toString());
+                        particularbean.setParticular(proName.getText().toString());
+                        particularbean.setPerquantity(dbPattasuHelper.getPattasu(no.getText().toString()).price);
+                        particularbean.setQuantity(quantity.getText().toString());
+                        particularbeans.add(particularbean);
+                    } else {
+                        particularbeans.get(selectedPosition).setId(no.getText().toString());
+                        particularbeans.get(selectedPosition).setParticular(proName.getText().toString());
+                        particularbeans.get(selectedPosition).setPerquantity(dbPattasuHelper.getPattasu(no.getText().toString()).price);
+                        particularbeans.get(selectedPosition).setQuantity(quantity.getText().toString());
+                    }
+                    no.requestFocus();
+                    selectedPosition = -1;
+                    addItems.setText("ADD");
+                    mparticularItemAdapter.notifyData(particularbeans);
+                    proName.setText("");
+                    proTotal.setText("");
+                    no.setText("");
+                    quantity.setText("");
+
+                    calculateTotal();
+
+                }
+            }
+        });
+
+        action_about.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), InvoiceListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        action_settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        particular_list = (findViewById(R.id.particular_list));
+        mparticularItemAdapter = new ParticularItemAdapter(this, particularbeans, this);
+        final LinearLayoutManager addManager1 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        particular_list.setLayoutManager(addManager1);
+        particular_list.setAdapter(mparticularItemAdapter);
+
+        ExtendedFloatingActionButton print = findViewById(R.id.print);
+        print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mBottomSheetDialog = new RoundedBottomSheetDialog(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-                View dialogView = inflater.inflate(R.layout.add_particulars, null);
-                AutoCompleteTextView particular = dialogView.findViewById(R.id.particular);
-                ArrayAdapter<String> adapter =
-                        new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getAllcategoryMainbeans());
-                particular.setThreshold(1);
-                particular.setAdapter(adapter);
-                TextInputLayout cgstText = dialogView.findViewById(R.id.cgstText);
-                TextInputLayout sgstText = dialogView.findViewById(R.id.sgstText);
-                TextInputLayout igstText = dialogView.findViewById(R.id.igstText);
-                TextInputEditText cgst = dialogView.findViewById(R.id.cgst);
-                TextInputEditText sgst = dialogView.findViewById(R.id.sgst);
-                TextInputEditText igst = dialogView.findViewById(R.id.igst);
+                View dialogView = inflater.inflate(R.layout.customer_details, null);
+                TextInputEditText customerName = dialogView.findViewById(R.id.customerName);
+                TextInputEditText whatsappNumber = dialogView.findViewById(R.id.whatsappNumber);
                 Button submitBtn = dialogView.findViewById(R.id.submitBtn);
                 Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
-
-                TextInputEditText quantity = dialogView.findViewById(R.id.quantity);
-                TextInputEditText perQuantity = dialogView.findViewById(R.id.perQuantity);
-                particular.requestFocus();
-                quantity.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
-                perQuantity.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                    }
-                });
-//                sgst.addTextChangedListener(new TextWatcher() {
-//                    @Override
-//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//                    }
-//
-//                    @Override
-//                    public void afterTextChanged(Editable s) {
-//                        if (checkGST.isChecked() && s.toString().length() > 0) {
-//                            int sgstVal = Integer.parseInt(s.toString());
-//                            int cgstVal = 0;
-//                            if (cgst.getText().toString().length() > 0) {
-//                                cgstVal = Integer.parseInt(cgst.getText().toString());
-//                            }
-//                            int igstVal = 0;
-//                            if (igst.getText().toString().length() > 0) {
-//                                igstVal = Integer.parseInt(igst.getText().toString());
-//                            }
-//                            if (sgstVal + cgstVal + igstVal > 18) {
-//                                sgstText.setError("Total GST must equal to 18%");
-//                            } else {
-//                                sgstText.setError(null);
-//                            }
-//                        }
-//                    }
-//                });
-//
-//                cgst.addTextChangedListener(new TextWatcher() {
-//                    @Override
-//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//                    }
-//
-//                    @Override
-//                    public void afterTextChanged(Editable c) {
-//                        if (checkGST.isChecked() && c.toString().length() > 0) {
-//                            int cgstVal = Integer.parseInt(c.toString());
-//                            int sgstVal = 0;
-//                            if (sgst.getText().toString().length() > 0) {
-//                                sgstVal = Integer.parseInt(cgst.getText().toString());
-//                            }
-//                            int igstVal = 0;
-//                            if (igst.getText().toString().length() > 0) {
-//                                igstVal = Integer.parseInt(igst.getText().toString());
-//                            }
-//                            if (cgstVal + sgstVal + igstVal > 18) {
-//                                cgstText.setError("Total GST must less than 18");
-//                            } else {
-//                                cgstText.setError(null);
-//                            }
-//                        }
-//                    }
-//                });
-//
-//                igst.addTextChangedListener(new TextWatcher() {
-//                    @Override
-//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//                    }
-//
-//                    @Override
-//                    public void afterTextChanged(Editable i) {
-//                        if (checkGST.isChecked() && i.toString().length() > 0) {
-//                            int igstVal = Integer.parseInt(i.toString());
-//                            int cgstVal = 0;
-//                            if (cgst.getText().toString().length() > 0) {
-//                                cgstVal = Integer.parseInt(cgst.getText().toString());
-//                            }
-//                            int sgstVal = 0;
-//                            if (sgst.getText().toString().length() > 0) {
-//                                sgstVal = Integer.parseInt(igst.getText().toString());
-//                            }
-//                            if (sgstVal + cgstVal + igstVal > 18) {
-//                                igst.setError("Total GST must less than 18");
-//                            } else {
-//                                igst.setError(null);
-//                            }
-//                        }
-//                    }
-//                });
                 submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (checkGST.isChecked() && cgst.getText().toString().length() <= 0 &&
-                                igst.getText().toString().length() <= 0 &&
-                                sgst.getText().toString().length() <= 0) {
-                            Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
+                        if (customerName.getText().toString().length() <= 0 &&
+                                whatsappNumber.getText().toString().length() <= 0) {
+                            Toast.makeText(getApplicationContext(), "Enter valid Contact", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        Particularbean particularbean = new Particularbean(
-                                particular.getText().toString().replace("\"", " inch"),
-                                quantity.getText().toString(),
-                                perQuantity.getText().toString(),
-                                cgst.getText().toString(),
-                                sgst.getText().toString(), igst.getText().toString());
-                        particularbeans.add(particularbean);
-                        mparticularItemAdapter.notifyData(particularbeans);
+                        Mainbean mainbean = new Mainbean();
+                        mainbean.setSellername(sharedpreferences.getString(shopNameKey, ""));
+                        mainbean.setSellerphone(sharedpreferences.getString(shopPhoneKey, ""));
+                        mainbean.setSelleraddress(sharedpreferences.getString(shopAddreesKey, ""));
+                        mainbean.setParticularbeans(particularbeans);
+                        mainbean.setBuyerphone(whatsappNumber.getText().toString());
+                        mainbean.setBuyername(customerName.getText().toString());
+                        getCreateInvoice(mainbean);
                         bottomSheetCancel();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       bottomSheetCancel();
+                        bottomSheetCancel();
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
@@ -372,403 +290,46 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             }
         });
 
+        getAllData();
+    }
 
-        action_about.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplication(), InvoiceListActivity.class);
-                startActivity(intent);
+    private void calculateTotal() {
+        float grandT = 0;
+        for (int i = 0; i < particularbeans.size(); i++) {
+            Particularbean particularbean = particularbeans.get(i);
+            String quanS = "1";
+            if (particularbean.getQuantity() != null && particularbean.getQuantity().length() > 0) {
+                quanS = particularbean.getQuantity();
             }
-        });
-
-        action_settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplication(), SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        invoiceText = findViewById(R.id.invoiceText);
-        quotationTxt = findViewById(R.id.quotationTxt);
-        invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-
-        invoiceText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                billingMode = "INVOICE";
-                invoiceText.setTextColor(Color.parseColor("#ffffff"));
-                invoiceText.setBackground(getResources().getDrawable(R.drawable.rectangle_filed));
-                invoiceText.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-                quotationTxt.setTextColor(Color.parseColor("#000000"));
-                quotationTxt.setBackground(getResources().getDrawable(R.drawable.rectangle_trans));
-            }
-        });
-        quotationTxt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                billingMode = "QUOTATION";
-                quotationTxt.setTextColor(Color.parseColor("#ffffff"));
-                quotationTxt.setBackground(getResources().getDrawable(R.drawable.rectangle_filed));
-                quotationTxt.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-                invoiceText.setTextColor(Color.parseColor("#000000"));
-                invoiceText.setBackground(getResources().getDrawable(R.drawable.rectangle_trans));
-            }
-        });
-
-
-        particular_list = (findViewById(R.id.particular_list));
-        mparticularItemAdapter = new ParticularItemAdapter(this, particularbeans, this, checkGST.isChecked());
-        final LinearLayoutManager addManager1 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        particular_list.setLayoutManager(addManager1);
-        particular_list.setAdapter(mparticularItemAdapter);
-
-        checkGST.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                validDateGst();
-                mparticularItemAdapter.notifyData(checkGST.isChecked());
-            }
-        });
-        sellername.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (sellername.toString().length() > 0) {
-                    sellernameText.setError(null);
-                }
-            }
-        });
-        selleraddress.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (selleraddress.toString().length() > 0) {
-                    selleraddressText.setError(null);
-                }
-            }
-        });
-        sellerphone.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (sellerphone.toString().length() > 0) {
-                    sellerphoneText.setError(null);
-                }
-            }
-        });
-        sellergstNo.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (sellergstNo.toString().length() > 0) {
-                    sellergstNoText.setError(null);
-                }
-            }
-        });
-
-        buyername.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (buyername.toString().length() > 0) {
-                    buyernameText.setError(null);
-                }
-            }
-        });
-        buyeraddress.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (buyeraddress.toString().length() > 0) {
-                    buyeraddressText.setError(null);
-                }
-            }
-        });
-        buyerphone.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (buyerphone.toString().length() > 0) {
-                    buyerphoneText.setError(null);
-                }
-            }
-        });
-        buyergstNo.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (buyergstNo.toString().length() > 0) {
-                    buyergstNoText.setError(null);
-                }
-            }
-        });
-
-
-        bankname.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (bankname.toString().length() > 0) {
-                    banknameText.setError(null);
-                }
-            }
-        });
-
-        accountNo.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (accountNo.toString().length() > 0) {
-                    accountNoText.setError(null);
-                }
-            }
-        });
-
-        ifcno.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (ifcno.toString().length() > 0) {
-                    ifcnoText.setError(null);
-                }
-            }
-        });
-        previous.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (previous.toString().length() > 0) {
-                    previousText.setError(null);
-                }
-            }
-        });
-        pakagecost.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (pakagecost.toString().length() > 0) {
-                    pakagecostText.setError(null);
-                }
-            }
-        });
-
-        try {
-            sellerbillNo.setText(getBillNo());
-
-        } catch (Exception e) {
-            Log.e("xxxxxxxxxxxx", e.toString());
+            float quan = Float.parseFloat(quanS);
+            float perQuanPri = Float.parseFloat(particularbean.perquantity);
+            grandT = grandT + quan * perQuanPri;
         }
-        ExtendedFloatingActionButton print = (findViewById(R.id.print));
-        print.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
-        headerbar.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
-        scroll.setBackgroundColor(Color.parseColor(getConfigBean().getColorPrimary()));
-        selectseller.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        selectbuyer.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-/*        seller_name.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        tittle.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-     */
-        selectseller.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        selectbuyer.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        addItems.setStrokeColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        addItems.setTextColor(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        addItems.setIconTint(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        checkGST.setButtonTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        checkGST.setTextColor(Color.parseColor(getConfigBean().getColorPrimary()));
-        checkDigi.setButtonTintList(ColorStateList.valueOf(Color.parseColor(getConfigBean().getColorPrimary())));
-        checkDigi.setTextColor(Color.parseColor(getConfigBean().getColorPrimary()));
-        print.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (sellername.getText().toString().length() <= 0) {
-                    sellernameText.setError("Enter the name");
-                    sellernameText.requestFocus();
-                } else if (selleraddress.getText().toString().length() <= 0) {
-                    selleraddressText.setError("Enter the address");
-                    selleraddressText.requestFocus();
-                } else if (sellerphone.getText().toString().length() <= 0) {
-                    sellerphoneText.setError("Enter the phone No");
-                    sellerphoneText.requestFocus();
-                } else if (sellergstNo.getText().toString().length() <= 0 && checkGST.isChecked()) {
-                    sellergstNoText.setError("Enter the GSTNo");
-                    sellergstNoText.requestFocus();
-                } else if (buyername.getText().toString().length() <= 0) {
-                    buyernameText.setError("Enter the name");
-                    buyernameText.requestFocus();
-                } else if (buyeraddress.getText().toString().length() <= 0) {
-                    buyeraddressText.setError("Enter the address");
-                    buyeraddressText.requestFocus();
-                } else if (buyerphone.getText().toString().length() <= 0) {
-                    buyerphoneText.setError("Enter the phone No");
-                    buyerphoneText.requestFocus();
-                } else if (buyergstNo.getText().toString().length() <= 0 && checkGST.isChecked()) {
-                    buyergstNoText.setError("Enter the GSTNo");
-                    buyergstNoText.requestFocus();
+        grandTotal.setText("₹ " + grandT);
+    }
+
+    private void getAutoFill(String s) {
+        if (s.length() > 0) {
+            if (dbPattasuHelper.getPattasu(s) != null) {
+                Pattasu pattasu = dbPattasuHelper.getPattasu(s);
+                proName.setText(pattasu.items);
+                int quan = 1;
+                if (quantity.getText().toString().length() > 0) {
+                    quan = Integer.parseInt(quantity.getText().toString());
                 }
-
-//                else if (bankname.getText().toString().length() <= 0) {
-//                    banknameText.setError("Enter the Bank Name");
-//                    banknameText.requestFocus();
-//                } else if (accountNo.getText().toString().length() <= 0) {
-//                    accountNoText.setError("Enter the Account No");
-//                    accountNoText.requestFocus();
-//                } else if (ifcno.getText().toString().length() <= 0) {
-//                    ifcnoText.setError("Enter the IFC No");
-//                    ifcnoText.requestFocus();
-//                }
-/*
-                else if (pakagecost.getText().toString().length() <= 0) {
-
-                    pakagecostText.setError("Enter the Package Cost");
-                    pakagecostText.requestFocus();
-                } else if (previous.getText().toString().length() <= 0) {
-                    previousText.setError("Enter the Previous Amount");
-                    previousText.requestFocus();
-                }*/
-                else {
-                    printDialog();
-                }
-
+                proTotal.setText("* " + pattasu.getPrice() + " = " + quan * Integer.parseInt(pattasu.price));
+            } else {
+                proName.setText("");
+                proTotal.setText("");
             }
-
-        });
-        selectseller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SellerListActivity.class);
-                startActivityForResult(intent, 10);
-            }
-        });
-        selectbuyer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, BuyerListActivity.class);
-                startActivityForResult(intent, 20);
-            }
-        });
-
-        getAllInvoice();
+        } else {
+            proName.setText("");
+            proTotal.setText("");
+        }
     }
 
     private void bottomSheetCancel() {
-        if(mBottomSheetDialog!=null) {
+        if (mBottomSheetDialog != null) {
             mBottomSheetDialog.cancel();
         }
         AppConfig.hideKeyboard(MainActivity.this);
@@ -780,78 +341,6 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         });
     }
 
-    private void printFunction() {
-        pDialog.setMessage("Printing...");
-        showDialog();
-
-
-        Mainbean tempMainbean = new Mainbean(
-                sellername.getText().toString(),
-                selleraddress.getText().toString(),
-                sellerphone.getText().toString(),
-                sellergstNo.getText().toString(),
-                getBillNo(),
-                buyername.getText().toString(),
-                buyeraddress.getText().toString(),
-                buyerphone.getText().toString(),
-                buyergstNo.getText().toString(),
-                "0",
-                "0",
-                "0",
-                bankname.getText().toString(),
-                accountNo.getText().toString(),
-                ifcno.getText().toString(),
-                previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString(),
-                pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString(),
-                billingMode,
-                holdername.getText().toString(),
-                db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
-                String.valueOf(checkGST.isChecked()),
-                particularbeans
-        );
-        tempMainbean.setId(Integer.parseInt(getBillNo()));
-
-        String jsonVal = new Gson().toJson(tempMainbean);
-        getCreateInvoice(jsonVal, tempMainbean);
-
-
-    }
-
-    private void justprintFunction() {
-        pDialog.setMessage("Printing...");
-        showDialog();
-        Mainbean tempMainbean = new Mainbean(
-
-                sellername.getText().toString(),
-                selleraddress.getText().toString(),
-                sellerphone.getText().toString(),
-                sellergstNo.getText().toString(),
-                getBillNo(),
-                buyername.getText().toString(),
-                buyeraddress.getText().toString(),
-                buyerphone.getText().toString(),
-                buyergstNo.getText().toString(),
-                "0",
-                "0",
-                "0",
-                bankname.getText().toString(),
-                accountNo.getText().toString(),
-                ifcno.getText().toString(),
-                previous.getText().toString().length() <= 0 ? "0" : previous.getText().toString(),
-                pakagecost.getText().toString().length() <= 0 ? "0" : pakagecost.getText().toString(),
-                billingMode,
-                holdername.getText().toString(),
-                db.getUniqueSeller(buyername.getText().toString(), buyerphone.getText().toString()),
-                String.valueOf(checkGST.isChecked()),
-                particularbeans
-
-        );
-
-        tempMainbean.setId(Integer.parseInt(sellerbillNo.getText().toString()));
-        printFunction(getApplicationContext(), tempMainbean, checkDigi.isChecked());
-
-
-    }
 
     private void showDialog() {
         if (!pDialog.isShowing())
@@ -872,7 +361,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             if (!dir.exists())
                 dir.mkdirs();
             Log.d("PDFCreator", "PDF Path: " + path);
-            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getSellerbillNo() + ".pdf");
+            File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getDbid() + ".pdf");
             if (file.exists()) {
                 file.delete();
             }
@@ -894,14 +383,9 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             document.open();
             PdfConfig.addMetaData(document);
 
-            boolean includeGst = false;
-            if (mainbean.includegst != null && mainbean.includegst.length() > 0 &&
-                    Boolean.parseBoolean(mainbean.includegst)) {
-                includeGst = true;
-            }
             HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
             pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, includeGst, MainActivity.this, getConfigBean(), getPreference());
+            PdfConfig.addContent(document, mainbean, true, MainActivity.this, getConfigBean(), getPreference());
 
             document.close();
 
@@ -933,7 +417,6 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         if (requestCode == 100) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                printFunction();
             } else {
                 Toast.makeText(MainActivity.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
             }
@@ -968,86 +451,6 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 10) {
-            if (resultCode == 1) {
-                Mainbean tempMainForSeller = (Mainbean) data.getSerializableExtra("data");
-                sellername.setText(tempMainForSeller.sellername);
-                selleraddress.setText(tempMainForSeller.selleraddress);
-                sellerphone.setText(tempMainForSeller.sellerphone);
-                sellergstNo.setText(tempMainForSeller.sellergstNo);
-                holdername.setText(tempMainForSeller.holdername);
-                bankname.setText(tempMainForSeller.bankname);
-                accountNo.setText(tempMainForSeller.accountNo);
-                ifcno.setText(tempMainForSeller.ifcno);
-            }
-        } else if (requestCode == 20) {
-            if (resultCode == 2) {
-                Mainbean tempMainForBuyer = (Mainbean) data.getSerializableExtra("data");
-                buyername.setText(tempMainForBuyer.buyername);
-                buyeraddress.setText(tempMainForBuyer.buyeraddress);
-                buyerphone.setText(tempMainForBuyer.buyerphone);
-                buyergstNo.setText(tempMainForBuyer.buyergstNo);
-            }
-        }
-
-
-    }
-
-    public void printDialog() {
-
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this, R.style.RoundShapeTheme);
-
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.print_dialog, null);
-
-
-        dialogBuilder.setTitle("Alert")
-                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                        } else {
-                            dialog.cancel();
-                            printFunction();
-                        }
-                    }
-                })
-                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        hideDialog();
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                        } else {
-                            justprintFunction();
-                            dialogInterface.cancel();
-                        }
-                    }
-                });
-        dialogBuilder.setView(dialogView);
-        final AlertDialog b = dialogBuilder.create();
-        b.setCancelable(true);
-
-
-        WindowManager.LayoutParams lp = b.getWindow().getAttributes();
-        lp.dimAmount = 0.8f;
-        b.show();
-    }
-
 
     @Override
     public void itemClick(int position) {
@@ -1058,233 +461,30 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     public void itemDeleteClick(int position) {
         particularbeans.remove(position);
         mparticularItemAdapter.notifyData(particularbeans);
+        calculateTotal();
     }
 
     @Override
     public void itemEditClick(int position) {
-        mBottomSheetDialog = new RoundedBottomSheetDialog(MainActivity.this);
-        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.add_particulars, null);
-        AutoCompleteTextView particular = dialogView.findViewById(R.id.particular);
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, db.getAllcategoryMainbeans());
-        particular.setThreshold(1);
-        particular.setAdapter(adapter);
-        TextInputLayout cgstText = dialogView.findViewById(R.id.cgstText);
-        TextInputLayout sgstText = dialogView.findViewById(R.id.sgstText);
-        TextInputLayout igstText = dialogView.findViewById(R.id.igstText);
-        TextInputEditText cgst = dialogView.findViewById(R.id.cgst);
-        TextInputEditText sgst = dialogView.findViewById(R.id.sgst);
-        TextInputEditText igst = dialogView.findViewById(R.id.igst);
-        Button submitBtn = dialogView.findViewById(R.id.submitBtn);
-        Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
-        submitBtn.setText("Update");
-        TextInputEditText quantity = dialogView.findViewById(R.id.quantity);
-        TextInputEditText perQuantity = dialogView.findViewById(R.id.perQuantity);
-
-        Particularbean particularbean = particularbeans.get(position);
-        quantity.setText(particularbean.quantity);
-        particular.setText(particularbean.particular.replace(" inch", "\""));
-        perQuantity.setText(particularbean.perquantity);
-        cgst.setText(particularbean.cgst);
-        sgst.setText(particularbean.sgst);
-        igst.setText(particularbean.igst);
-
-//        sgst.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                if (s.toString().length() > 0) {
-//                    int sgstVal = Integer.parseInt(s.toString());
-//                    int cgstVal = 0;
-//                    if (cgst.getText().toString().length() > 0) {
-//                        cgstVal = Integer.parseInt(cgst.getText().toString());
-//                    }
-//                    int igstVal = 0;
-//                    if (igst.getText().toString().length() > 0) {
-//                        igstVal = Integer.parseInt(igst.getText().toString());
-//                    }
-//                    if (sgstVal + cgstVal + igstVal > 18) {
-//                        sgstText.setError("Total GST must less than 18");
-//                    } else {
-//                        sgstText.setError(null);
-//                    }
-//                }
-//            }
-//        });
-//
-//        cgst.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable c) {
-//                if (c.toString().length() > 0) {
-//                    int cgstVal = Integer.parseInt(c.toString());
-//                    int sgstVal = 0;
-//                    if (sgst.getText().toString().length() > 0) {
-//                        sgstVal = Integer.parseInt(cgst.getText().toString());
-//                    }
-//                    int igstVal = 0;
-//                    if (igst.getText().toString().length() > 0) {
-//                        igstVal = Integer.parseInt(igst.getText().toString());
-//                    }
-//                    if (cgstVal + sgstVal + igstVal > 18) {
-//                        cgstText.setError("Total GST must less than 18");
-//                    } else {
-//                        cgstText.setError(null);
-//                    }
-//                }
-//            }
-//        });
-//
-//        igst.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable i) {
-//                if (i.toString().length() > 0) {
-//                    int igstVal = Integer.parseInt(i.toString());
-//                    int cgstVal = 0;
-//                    if (cgst.getText().toString().length() > 0) {
-//                        cgstVal = Integer.parseInt(cgst.getText().toString());
-//                    }
-//                    int sgstVal = 0;
-//                    if (sgst.getText().toString().length() > 0) {
-//                        sgstVal = Integer.parseInt(igst.getText().toString());
-//                    }
-//                    if (sgstVal + cgstVal + igstVal > 18) {
-//                        igst.setError("Total GST must less than 18");
-//                    } else {
-//                        igst.setError(null);
-//                    }
-//                }
-//            }
-//        });
-
-        quantity.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        perQuantity.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkGST.isChecked() && cgst.getText().toString().length() <= 0 &&
-                        igst.getText().toString().length() <= 0 &&
-                        sgst.getText().toString().length() <= 0) {
-                    Toast.makeText(getApplicationContext(), "Enter valid GST", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                particularbeans.get(position).setParticular(particular.getText().toString().replace("\"", " inch"));
-                particularbeans.get(position).setQuantity(quantity.getText().toString());
-                particularbeans.get(position).setPerquantity(perQuantity.getText().toString());
-                particularbeans.get(position).setCgst(cgst.getText().toString());
-                particularbeans.get(position).setSgst(sgst.getText().toString());
-                particularbeans.get(position).setIgst(igst.getText().toString());
-                mparticularItemAdapter.notifyData(particularbeans);
-               bottomSheetCancel();
-            }
-        });
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               bottomSheetCancel();
-            }
-        });
-        mBottomSheetDialog.setContentView(dialogView);
-        mBottomSheetDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        mBottomSheetDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        BottomSheetDialog d = (BottomSheetDialog) dialog;
-                        FrameLayout bottomSheet = d.findViewById(R.id.design_bottom_sheet);
-                        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-                        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    }
-                }, 0);
-            }
-        });
-        mBottomSheetDialog.show();
-    }
-
-    private void validDateGst() {
-
-        if (checkGST.isChecked()) {
-            ((TextView) findViewById(R.id.cgstLabel)).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.sgstLabel)).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.igstLabel)).setVisibility(View.VISIBLE);
-        } else {
-            ((TextView) findViewById(R.id.cgstLabel)).setVisibility(View.GONE);
-            ((TextView) findViewById(R.id.sgstLabel)).setVisibility(View.GONE);
-            ((TextView) findViewById(R.id.igstLabel)).setVisibility(View.GONE);
+        if (selectedPosition == -1) {
+            selectedPosition = position;
+            no.setText(particularbeans.get(position).id);
+            quantity.setText(particularbeans.get(position).quantity);
+            addItems.setText("Update");
         }
     }
+
 
     private String getBillNo() {
         List<Mainbean> mainbeans = db.getLastBillNo();
         String billNo = "00001";
         if (mainbeans.size() > 0) {
-            billNo = AppConfig.intToString(Integer.parseInt(mainbeans.get(0).sellerbillNo) + 1, 5);
+            billNo = AppConfig.intToString(Integer.parseInt(mainbeans.get(0).dbid) + 1, 5);
         }
         return billNo;
     }
 
-    private void getCreateInvoice(final String data, Mainbean tempMainbean) {
+    private void getCreateInvoice(Mainbean tempMainbean) {
         this.pDialog.setMessage("Creating...");
         showDialog();
         StringRequest local16 = new StringRequest(1, CREATE_INVOICE, new Response.Listener<String>() {
@@ -1296,8 +496,13 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                     String str = localJSONObject1.getString("message");
                     if (localJSONObject1.getInt("success") == 1) {
                         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
+                        Date d = new Date();
+                        CharSequence s = DateFormat.format("dd-MM-yyyy", d.getTime());
+                        String dbId = localJSONObject1.getString("dbid");
+                        tempMainbean.setTimestamp(s.toString());
+                        tempMainbean.setDbid(dbId);
                         db.insertMainbean(tempMainbean);
-                        printFunction(getApplicationContext(), tempMainbean, checkDigi.isChecked());
+                        printFunction(getApplicationContext(), tempMainbean, true);
 
                     } else if (str.equals("Invalid authtoken")) {
                         logout();
@@ -1317,11 +522,10 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap<String, String> localHashMap = new HashMap<String, String>();
-                localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("userid", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("shopid", sharedpreferences.getString(shopIdKey, ""));
                 localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
-                localHashMap.put("data", data);
-
-
+                localHashMap.put("data", new Gson().toJson(tempMainbean));
                 return localHashMap;
             }
         };
@@ -1329,13 +533,11 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     }
 
 
-    private void getAllInvoice() {
+    private void getAllData() {
         String tag_string_req = "req_register";
         pDialog.setMessage("Fetching ...");
         showDialog();
-        // showDialog();
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                GET_ALL_INVOICE, new Response.Listener<String>() {
+        StringRequest strReq = new StringRequest(Request.Method.POST, GET_ALL_DATA, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d("Register Response: ", response.toString());
@@ -1350,14 +552,33 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                                 JSONObject dataObject = jsonArray.getJSONObject(i);
                                 String inputVal = dataObject.getString("data");
                                 String createdon = dataObject.getString("createdon");
+                                String id = dataObject.getString("id");
                                 Mainbean mainbean = new Gson().fromJson(inputVal, Mainbean.class);
+                                mainbean.setDbid(id);
                                 mainbean.setTimestamp(createdon);
                                 db.insertMainbean(mainbean);
                             } catch (Exception e) {
                                 Log.e("xxxxxxxxxxx", e.toString());
                             }
                         }
-                        sellerbillNo.setText(getBillNo());
+                        JSONArray pattasu = jObj.getJSONArray("pattasu");
+                        dbPattasuHelper.deleteAll();
+                        for (int i = 0; i < pattasu.length(); i++) {
+                            try {
+                                JSONObject dataObject = pattasu.getJSONObject(i);
+                                Pattasu pattasuBean = new Pattasu(
+
+                                        dataObject.getString("title"),
+                                        dataObject.getString("items"),
+                                        dataObject.getString("price"),
+                                        dataObject.getString("id")
+                                );
+                                dbPattasuHelper.insertPattasu(pattasuBean);
+                            } catch (Exception e) {
+                                Log.e("xxxxxxxxxxx", e.toString());
+                            }
+                        }
+                        dbPattasuHelper.getAllPattasu();
                     }
                 } catch (Exception e) {
                     Log.e("xxxxxxxxxxx", e.toString());
@@ -1379,7 +600,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         }) {
             protected Map<String, String> getParams() {
                 HashMap localHashMap = new HashMap();
-                localHashMap.put("surveyer", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("userid", sharedpreferences.getString(user_id, ""));
+                localHashMap.put("shopid", sharedpreferences.getString(shopIdKey, ""));
                 localHashMap.put("auth_key", sharedpreferences.getString(auth_key, ""));
                 return localHashMap;
             }

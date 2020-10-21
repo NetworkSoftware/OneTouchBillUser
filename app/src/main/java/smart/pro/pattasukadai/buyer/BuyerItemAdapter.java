@@ -30,8 +30,7 @@ public class BuyerItemAdapter extends RecyclerView.Adapter<BuyerItemAdapter.MyVi
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView buyerCapital;
-        TextView custid;
-        TextView buyername, buyeraddress, buyerphone, buyergstNo;
+        TextView buyername, buyerphone;
         ImageView checkView;
 
         public MyViewHolder(View view) {
@@ -39,10 +38,7 @@ public class BuyerItemAdapter extends RecyclerView.Adapter<BuyerItemAdapter.MyVi
 
             buyerCapital = (TextView) view.findViewById(R.id.buyerCapital);
             buyername = (TextView) view.findViewById(R.id.buyername);
-            buyeraddress = (TextView) view.findViewById(R.id.buyeraddress);
             buyerphone = (TextView) view.findViewById(R.id.buyerphone);
-            buyergstNo = (TextView) view.findViewById(R.id.buyergstNo);
-            custid = (TextView) view.findViewById(R.id.custid);
             checkView = (ImageView) view.findViewById(R.id.checkView);
 
         }
@@ -80,14 +76,7 @@ public class BuyerItemAdapter extends RecyclerView.Adapter<BuyerItemAdapter.MyVi
         holder.buyerCapital.setBackgroundTintList(ColorStateList.valueOf(
                 Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))));
         holder.buyername.setText(bean.getBuyername());
-        holder.buyeraddress.setText(bean.getBuyeraddress());
         holder.buyerphone.setText("Ph: " + bean.getBuyerphone());
-        holder.buyergstNo.setText("GST: " + bean.getBuyergstNo());
-        try {
-            holder.custid.setText(AppConfig.intToString(Integer.parseInt(bean.customerid), 4));
-        } catch (Exception e) {
-            holder.custid.setText(bean.customerid);
-        }
         holder.checkView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -34,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Context.MODE_PRIVATE);
         try {
             //setTheme(R.style.AppTheme);
-            String colorPrimary=ConfigBean.getInstance().colorPrimary;
+            String colorPrimary="#EC2517";
             int theme = Color.parseColor(colorPrimary);
             setActionBar(theme);
         } catch (Exception e) {

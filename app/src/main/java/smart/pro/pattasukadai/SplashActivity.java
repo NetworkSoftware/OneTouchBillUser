@@ -32,9 +32,10 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static smart.pro.pattasukadai.app.AppConfig.LOGIN_INVOICE;
+import static smart.pro.pattasukadai.app.AppConfig.LOGIN_USER;
 import static smart.pro.pattasukadai.app.AppConfig.mypreference;
 import static smart.pro.pattasukadai.app.AppConfig.serialNo;
+import static smart.pro.pattasukadai.app.AppConfig.shopIdKey;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -42,7 +43,6 @@ public class SplashActivity extends AppCompatActivity {
     TextInputLayout usernameTxt;
     TextInputEditText password;
     TextInputLayout passwordText;
-    TextView request;
     ProgressDialog dialog;
     protected SharedPreferences sharedpreferences;
 
@@ -62,17 +62,10 @@ public class SplashActivity extends AppCompatActivity {
         usernameTxt = findViewById(R.id.usernameTxt);
         password = findViewById(R.id.password);
         passwordText = findViewById(R.id.passwordText);
-        request=findViewById(R.id.request);
         if (sharedpreferences.contains(AppConfig.configKey)) {
             username.setText(sharedpreferences.getString(AppConfig.configKey, ""));
         }
 
-        request.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SplashActivity.this, RequestActivity.class));
-            }
-        });
         FloatingActionButton submitBtn = findViewById(R.id.submitBtn);
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +85,7 @@ public class SplashActivity extends AppCompatActivity {
         dialog.setMessage("Login ...");
         showDialog();
         // showDialog();
-        StringRequest strReq = new StringRequest(Request.Method.POST, LOGIN_INVOICE, new Response.Listener<String>() {
+        StringRequest strReq = new StringRequest(Request.Method.POST, LOGIN_USER, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d("Register Response: ", response.toString());
@@ -103,26 +96,17 @@ public class SplashActivity extends AppCompatActivity {
                     if (success == 1) {
                         String auth_key = jObj.getString("auth_key");
                         String user_id = jObj.getString("user_id");
-                        String data = jObj.getString("data");
+                        String shopId = jObj.getString("shopId");
+                        String shopName = jObj.getString("shopName");
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.putString(AppConfig.configKey, username.getText().toString());
                         editor.putString(AppConfig.auth_key, auth_key);
                         editor.putString(AppConfig.user_id, user_id);
+                        editor.putString(AppConfig.shopIdKey, shopId);
+                        editor.putString(AppConfig.shopNameKey, shopName);
+                        editor.putString(AppConfig.shopPhoneKey, jObj.getString("shopPhone"));
+                        editor.putString(AppConfig.shopAddreesKey, jObj.getString("shopAddress"));
                         editor.commit();
-
-                        PreferenceBean.getInstance().setSerial(sharedpreferences.getBoolean(serialNo, false));
-
-                        ConfigBean configBean = new Gson().fromJson(data, ConfigBean.class);
-                        Bitmap ownersign = AppConfig.getBitmapFromURL(AppConfig.IMAGEPATH + configBean.getOwnerSign());
-                        configBean.setOwnersignBit(ownersign);
-
-                        Bitmap pdflogo = AppConfig.getBitmapFromURL(AppConfig.IMAGEPATH + configBean.getPdfLogo());
-                        configBean.setPdfLogoBit(pdflogo);
-
-                        Bitmap poweredbylogo = AppConfig.getBitmapFromURL(AppConfig.IMAGEPATH + configBean.getPoweredByLogo());
-                        configBean.setPoweredByLogoBit(poweredbylogo);
-
-                        ConfigBean.set_instance(configBean);
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                         finish();
                     }

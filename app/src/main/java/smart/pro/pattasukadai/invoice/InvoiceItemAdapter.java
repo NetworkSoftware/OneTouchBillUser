@@ -35,9 +35,9 @@ public class InvoiceItemAdapter extends RecyclerView.Adapter<InvoiceItemAdapter.
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView buyerCapital, sellerbillNo, invoice_date, sellername, selleraddress, sellerphone, sellergstNo;
+        TextView buyerCapital, sellerbillNo, invoice_date, sellername, selleraddress, sellerphone;
         TextView quantity, total;
-        TextView buyername, buyeraddress, buyerphone, buyergstNo;
+        TextView buyername, buyeraddress, buyerphone;
         ImageView shareView, deleteview, editview;
 
         public MyViewHolder(View view) {
@@ -49,13 +49,11 @@ public class InvoiceItemAdapter extends RecyclerView.Adapter<InvoiceItemAdapter.
             sellername = (TextView) view.findViewById(R.id.sellername);
             selleraddress = (TextView) view.findViewById(R.id.selleraddress);
             sellerphone = (TextView) view.findViewById(R.id.sellerphone);
-            sellergstNo = (TextView) view.findViewById(R.id.sellergstNo);
             quantity = (TextView) view.findViewById(R.id.quantity);
             total = (TextView) view.findViewById(R.id.total);
             buyername = (TextView) view.findViewById(R.id.buyername);
             buyeraddress = (TextView) view.findViewById(R.id.buyeraddress);
             buyerphone = (TextView) view.findViewById(R.id.buyerphone);
-            buyergstNo = (TextView) view.findViewById(R.id.buyergstNo);
             shareView = (ImageView) view.findViewById(R.id.shareView);
             deleteview = (ImageView) view.findViewById(R.id.deleteview);
             editview = (ImageView) view.findViewById(R.id.editview);
@@ -93,7 +91,7 @@ public class InvoiceItemAdapter extends RecyclerView.Adapter<InvoiceItemAdapter.
 
         }
         try {
-            holder.sellerbillNo.setText(AppConfig.intToString(Integer.parseInt(bean.getSellerbillNo()), 5));
+            holder.sellerbillNo.setText(AppConfig.intToString(Integer.parseInt(bean.getDbid()), 5));
         } catch (Exception e) {
             Log.e("xxxxxxxxxxxx", e.toString());
         }
@@ -102,12 +100,9 @@ public class InvoiceItemAdapter extends RecyclerView.Adapter<InvoiceItemAdapter.
                 Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))));
         holder.sellername.setText(bean.getSellername());
         holder.selleraddress.setText(bean.getSelleraddress());
-        holder.sellergstNo.setText("GST: " + bean.getSellergstNo());
         holder.sellerphone.setText("Ph: " + bean.getSellerphone());
         holder.buyername.setText(bean.getBuyername());
-        holder.buyeraddress.setText(bean.getBuyeraddress());
         holder.buyerphone.setText("Ph: " + bean.getBuyerphone());
-        holder.buyergstNo.setText("GST: " + bean.getBuyergstNo());
         holder.invoice_date.setText(bean.timestamp);
         holder.quantity.setText("#" + bean.getParticularbeans().size());
 //        try {

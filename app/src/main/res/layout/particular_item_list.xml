@@ -7,128 +7,106 @@
     android:orientation="vertical"
     tools:context="smart.pro.pattasukadai.MainActivity">
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="140dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1.4"
             android:background="@drawable/rect"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/particulars"
-                android:layout_width="110dp"
+                android:id="@+id/no"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableRight="@drawable/ic_baseline_edit_24"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/rect"
                 android:fontFamily="@font/sans"
-                android:gravity="center"
                 android:paddingLeft="10dp"
+                android:layout_weight="1"
                 android:paddingTop="15dp"
                 android:paddingRight="10dp"
                 android:paddingBottom="15dp"
-                android:text="Particular"
+                android:text="No"
                 android:textColor="@color/black" />
-
+            <ImageView
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:src="@drawable/ic_outline_edit_24"
+                android:tint="@color/grayDark" />
             <ImageView
                 android:id="@+id/delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:foreground="?android:attr/selectableItemBackground"
-                android:tint="#E91E1E"
-                android:src="@drawable/ic_outline_delete_24" />
+                android:src="@drawable/ic_outline_delete_24"
+                android:tint="#E91E1E" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/particularsquantity"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_marginLeft="5dp"
+            android:layout_weight="1"
             android:background="@drawable/rect"
             android:fontFamily="@font/sans"
+            android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:paddingTop="15dp"
             android:paddingRight="10dp"
             android:paddingBottom="15dp"
-            android:text="Quantity"
+            android:text="Name"
             android:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/particularsperquantity"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_marginLeft="5dp"
+            android:layout_weight="1.3"
             android:background="@drawable/rect"
-            android:fontFamily="@font/sans"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            android:text="Pr/Quantity"
-            android:textColor="@color/black" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/particularssgst"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/rect"
-            android:fontFamily="@font/sans"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            android:text="SGST"
-            android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:id="@+id/total"
+                android:background="@drawable/rect"
+                android:fontFamily="@font/sans"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="Total/Price"
+                android:textColor="@color/black"
+                android:textSize="15dp" />
 
-        <TextView
-            android:id="@+id/particularscgst"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/rect"
-            android:fontFamily="@font/sans"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            android:text="CGST"
-            android:textColor="@color/black" />
-
-        <TextView
-            android:id="@+id/particularsigst"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/rect"
-            android:fontFamily="@font/sans"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            android:text="IGST"
-            android:textColor="@color/black" />
-
-        <TextView
-            android:id="@+id/particularstotal"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/rect"
-            android:fontFamily="@font/sans"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="15dp"
-            android:text="Price"
-            android:textColor="@color/black" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/rect"
+                android:fontFamily="@font/sans"
+                android:paddingLeft="10dp"
+                android:id="@+id/totalCal"
+                android:textSize="12dp"
+                android:paddingRight="10dp"
+                android:text="Total/Price"
+                android:textColor="@color/grayDark" />
+        </LinearLayout>
     </LinearLayout>
-
 
 </LinearLayout>
