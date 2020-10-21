@@ -30,7 +30,6 @@ import smart.pro.pattasukadai.StoreMainbean;
 import smart.pro.pattasukadai.invoice.Particularbean;
 
 
-
 public class PatasuPdfConfig {
 
     private static BaseFont urName;
@@ -51,7 +50,7 @@ public class PatasuPdfConfig {
     private static BaseColor gray = new BaseColor(237, 237, 237);
 
     private static Font titleFont = new Font(urName, 11, Font.UNDERLINE | Font.BOLD);
-    private static Font nameFont = new Font(urName, 11, Font.BOLD);
+    private static Font nameFont = new Font(urName, 13, Font.BOLD);
     private static Font catFont = new Font(urName, 9, Font.BOLD);
     private static Font catFontWhite = new Font(urName, 9, Font.BOLD);
     private static Font catNormalFont = new Font(urName, 9, Font.NORMAL);
@@ -66,17 +65,9 @@ public class PatasuPdfConfig {
         document.addCreator("Lars Vogel");
     }
 
-    public static void addContent(Document document, Mainbean mainbean,
-                                  boolean isGst, Context context,
-                                  ConfigBean configBean, PreferenceBean preferenceBean) throws Exception {
-        String[] getGreenBaseString = configBean.getGreenBase().split("#");
-        greenBase = new BaseColor(Integer.parseInt(getGreenBaseString[0]), Integer.parseInt(getGreenBaseString[1]), Integer.parseInt(getGreenBaseString[2]));
-
-        String[] getGreenLightBaseString = configBean.getGreenLightBase().split("#");
-        greenLightBase = new BaseColor(Integer.parseInt(getGreenLightBaseString[0]), Integer.parseInt(getGreenLightBaseString[1]), Integer.parseInt(getGreenLightBaseString[2]));
+    public static void addContent(Document document, Mainbean mainbean, Context context) throws Exception {
 
         invoiceFont = new Font(urName, 20, Font.BOLD, greenBase);
-
 
 
         PdfPTable table1 = new PdfPTable(1);
@@ -84,9 +75,8 @@ public class PatasuPdfConfig {
         table1.setWidths(new int[]{1});
 
         table1.addCell(createTextCellCenter("PATASU KADAI", nameFont));
-        table1.addCell(createTextCellCenter("24/1,palamuthir nilayam opposite,Coimbature.", catFont));
         table1.addCell(createTextCellCenter(mainbean.selleraddress, catFont));
-        table1.addCell(createTextCellBorder("", catFont));
+        table1.addCell(createTextCellCenter("\n", catFont));
 
         table1.setSplitLate(false);
         document.add(table1);
@@ -95,31 +85,49 @@ public class PatasuPdfConfig {
         table2.setWidthPercentage(100);
         table2.setWidths(new int[]{1});
 
-        table2.addCell(createTextCellLeftRight("Name:"+mainbean.buyername, nameFont));
-        table2.addCell(createTextCellCenter("Mobile No:"+mainbean.buyerphone, catFont));
-        table2.addCell(createTextCellBorder("", catFont));
+        table2.addCell(createTextLeft("Name:" + mainbean.buyername, catNormalFont));
+        table2.addCell(createTextLeft("Mobile No:" + mainbean.buyerphone, catNormalFont));
+        table2.addCell(createTextLeft("\n", catFont));
 
         table2.setSplitLate(false);
         document.add(table2);
 
-        PdfPTable table3 = new PdfPTable(1);
+        PdfPTable table3 = new PdfPTable(5);
         table3.setWidthPercentage(100);
-        table3.setWidths(new int[]{1,1,1});
-        ArrayList<Particularbean> storeMainbeans = mainbean.getParticularbeans();
-        for (int i = 0; i < storeMainbeans.size(); i++) {
-            Particularbean fields = storeMainbeans.get(i);
+        table3.setWidths(new float[]{0.5f, 2.5f, 1, 1, 1});
+        table3.addCell(createTextCellBorder("No", catFont));
+        table3.addCell(createTextCellBorder("Particulars", catFont));
+        table3.addCell(createTextCellBorder("Quantity", catFont));
+        table3.addCell(createTextCellBorder("PerQuan/Price", catFont));
+        table3.addCell(createTextCellBorder("Total Amount", catFont));
+        double grantTotal = 0;
 
-            table3.addCell(createTextCellBorder("No", nameFont));
-            table3.addCell(createTextCellBorder("Items", nameFont));
-            table3.addCell(createTextCellBorder("Total Price:", nameFont));
+        ArrayList<Particularbean> particularbeans = mainbean.getParticularbeans();
+        for (int i = 0; i < particularbeans.size(); i++) {
+            Particularbean fields = particularbeans.get(i);
+            int quant = Integer.parseInt(fields.getQuantity());
+            int perquant = Integer.parseInt(fields.getPerquantity());
+            table3.addCell(createTextCellBorderLeft(fields.getId(), catNormalFont));
+            table3.addCell(createTextCellBorderLeft(fields.getParticular(), catNormalFont));
+            table3.addCell(createTextCellBorderLeft(fields.getQuantity(), catNormalFont));
+            table3.addCell(createTextCellBorderLeft(fields.getPerquantity(), catNormalFont));
+            float quan = Float.parseFloat(fields.getQuantity());
+            float perQuanPri = Float.parseFloat(fields.getPerquantity());
+            double total = quan * perQuanPri;
+            grantTotal = grantTotal + total;
 
-            table3.addCell(createTextCellBorder(fields.getId(), nameFont));
-            table3.addCell(createTextCellBorder(fields.getParticular(), nameFont));
-            table3.addCell(createTextCellBorder("", nameFont));
+            table3.addCell(createTextCellBorderLeft(round(total, 2), catFont));
 
-            table3.setSplitLate(false);
-            document.add(table3);
         }
+        table3.addCell(createTextCellBootomparticlure("", catNormalFont));
+        table3.addCell(createTextCellBorderbootomtotal(AppConfig.convertToIndianCurrency(grantTotal + ""), catNormalFont));
+        table3.addCell(createTextCellBorderbootomtotal("", catNormalFont));
+        table3.addCell(createTextCellBorderbootomtotal("", catNormalFont));
+        table3.addCell(createTextCellToplessRight(round(grantTotal, 2) + "", catFont));
+
+        table3.setSplitLate(false);
+        document.add(table3);
+
     }
 
     public static PdfPCell createTextCellTable(String text, Font font) throws DocumentException, IOException {
@@ -159,6 +167,17 @@ public class PatasuPdfConfig {
         cell.addElement(p);
         cell.setPaddingLeft(5);
         cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setBorder(Rectangle.NO_BORDER);
+        return cell;
+    }
+
+    public static PdfPCell createTextLeft(String text, Font font) throws DocumentException, IOException {
+        PdfPCell cell = new PdfPCell();
+        Paragraph p = new Paragraph(text, font);
+        p.setAlignment(Element.ALIGN_LEFT);
+        cell.addElement(p);
+        cell.setPaddingLeft(5);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setBorder(Rectangle.NO_BORDER);
         return cell;
     }
@@ -260,7 +279,6 @@ public class PatasuPdfConfig {
         p.setAlignment(Element.ALIGN_RIGHT);
         cell.addElement(p);
         cell.setUseAscender(true);
-        cell.setBackgroundColor(greenLightBase);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setPaddingTop(7);
@@ -372,7 +390,6 @@ public class PatasuPdfConfig {
         Paragraph p = new Paragraph(text, font);
         p.setAlignment(Element.ALIGN_CENTER);
         cell.addElement(p);
-        cell.setBackgroundColor(greenLightBase);
         cell.setUseAscender(true);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);

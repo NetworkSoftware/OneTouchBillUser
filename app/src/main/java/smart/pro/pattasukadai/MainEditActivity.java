@@ -49,6 +49,7 @@ import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
 import smart.pro.pattasukadai.app.DbPattasuHelper;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.PatasuPdfConfig;
 import smart.pro.pattasukadai.app.Pattasu;
 import smart.pro.pattasukadai.app.PdfConfig;
 import smart.pro.pattasukadai.invoice.ParticularItemAdapter;
@@ -319,7 +320,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             Document document = new Document(PageSize.A4, 30, 28, 40, 119);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+           /* ByteArrayOutputStream stream = new ByteArrayOutputStream();
             getConfigBean().getOwnersignBit().compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
 
@@ -327,13 +328,13 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             getConfigBean().getPoweredByLogoBit().compress(Bitmap.CompressFormat.PNG, 100, stream1);
             byte[] byteArray1 = stream1.toByteArray();
 
-
+*/
             document.open();
-            PdfConfig.addMetaData(document);
+            PatasuPdfConfig.addMetaData(document);
 
-            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), false, getConfigBean());
-            pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, true, MainEditActivity.this, getConfigBean(), getPreference());
+            /*HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), false, getConfigBean());
+            pdfWriter.setPageEvent(event);*/
+            PatasuPdfConfig.addContent(document, mainbean,  MainEditActivity.this);
 
             document.close();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

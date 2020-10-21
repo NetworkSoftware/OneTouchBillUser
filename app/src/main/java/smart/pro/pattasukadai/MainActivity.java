@@ -57,6 +57,7 @@ import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
 import smart.pro.pattasukadai.app.DbPattasuHelper;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.PatasuPdfConfig;
 import smart.pro.pattasukadai.app.Pattasu;
 import smart.pro.pattasukadai.app.PdfConfig;
 import smart.pro.pattasukadai.buyer.BuyerListActivity;
@@ -261,7 +262,9 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                         mainbean.setBuyername(customerName.getText().toString());
                         getCreateInvoice(mainbean);
                         bottomSheetCancel();
+
                     }
+
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -352,7 +355,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             pDialog.dismiss();
     }
 
-    public void printFunction(Context context, Mainbean mainbean, boolean isDigital) {
+    public void printFunction(Context context, Mainbean mainbean) {
 
         try {
 
@@ -368,24 +371,24 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             FileOutputStream fOut = new FileOutputStream(file);
 
 
-            Document document = new Document(PageSize.A4, 30, 28, 40, 119);
+            Document document = new Document(PageSize.B8, 30, 28, 40, 119);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
             getConfigBean().getOwnersignBit().compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
 
             ByteArrayOutputStream stream1 = new ByteArrayOutputStream();
             getConfigBean().getPoweredByLogoBit().compress(Bitmap.CompressFormat.PNG, 100, stream1);
             byte[] byteArray1 = stream1.toByteArray();
-
+*/
 
             document.open();
-            PdfConfig.addMetaData(document);
+            PatasuPdfConfig.addMetaData(document);
 
-            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
-            pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, true, MainActivity.this, getConfigBean(), getPreference());
+           /* HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray), Image.getInstance(byteArray1), isDigital, getConfigBean());
+            pdfWriter.setPageEvent(event);*/
+            PatasuPdfConfig.addContent(document, mainbean, MainActivity.this);
 
             document.close();
 
@@ -502,7 +505,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                         tempMainbean.setTimestamp(s.toString());
                         tempMainbean.setDbid(dbId);
                         db.insertMainbean(tempMainbean);
-                        printFunction(getApplicationContext(), tempMainbean, true);
+                        printFunction(getApplicationContext(), tempMainbean);
 
                     } else if (str.equals("Invalid authtoken")) {
                         logout();

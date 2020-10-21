@@ -43,6 +43,7 @@ import smart.pro.pattasukadai.app.AppController;
 import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.PatasuPdfConfig;
 import smart.pro.pattasukadai.app.PdfConfig;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -153,25 +154,15 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
             FileOutputStream fOut = new FileOutputStream(file);
 
 
-            Document document = new Document(PageSize.A4, 30, 28, 40, 119);
+            Document document = new Document(PageSize.A10, 30, 28, 40, 119);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            getConfigBean().getOwnersignBit().compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-
-            ByteArrayOutputStream stream1 = new ByteArrayOutputStream();
-            getConfigBean().getPoweredByLogoBit().compress(Bitmap.CompressFormat.PNG, 100, stream1);
-            byte[] byteArray1 = stream1.toByteArray();
 
 
             document.open();
-            PdfConfig.addMetaData(document);
+            PatasuPdfConfig.addMetaData(document);
 
-            HeaderFooterPageEvent event = new HeaderFooterPageEvent(Image.getInstance(byteArray),
-                    Image.getInstance(byteArray1), false, getConfigBean());
-            pdfWriter.setPageEvent(event);
-            PdfConfig.addContent(document, mainbean, true, InvoiceListActivity.this, getConfigBean(),getPreference());
+
+            PatasuPdfConfig.addContent(document, mainbean, InvoiceListActivity.this);
             //AppConfig.addTitlePage(document);
 
 
