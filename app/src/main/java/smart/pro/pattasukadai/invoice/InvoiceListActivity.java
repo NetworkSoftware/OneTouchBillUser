@@ -50,6 +50,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import org.json.JSONException;
@@ -144,8 +145,9 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
 
             String path = Environment.getExternalStorageDirectory().getPath() + "/PDF";
             File dir = new File(path);
-            if (!dir.exists())
+            if (!dir.exists()) {
                 dir.mkdirs();
+            }
             Log.d("PDFCreator", "PDF Path: " + path);
             File file = new File(dir, mainbean.getBuyername().replace(" ", "_") + "_" + mainbean.getDbid() + ".pdf");
             if (file.exists()) {
@@ -154,7 +156,7 @@ public class InvoiceListActivity extends BaseActivity implements OnItemClick {
             FileOutputStream fOut = new FileOutputStream(file);
 
 
-            Document document = new Document(PageSize.A10, 30, 28, 40, 119);
+            Document document = new Document(new Rectangle(288, 512));
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
 

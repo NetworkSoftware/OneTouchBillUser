@@ -11,18 +11,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -41,6 +45,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,14 +54,20 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.bitly.Bitly;
+import com.bitly.Error;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.deishelon.roundedbottomsheet.RoundedBottomSheetDialog;
 
+import smart.pro.pattasukadai.app.AndroidMultiPartEntity;
 import smart.pro.pattasukadai.app.AppConfig;
 import smart.pro.pattasukadai.app.AppController;
 import smart.pro.pattasukadai.app.BaseActivity;
 import smart.pro.pattasukadai.app.DatabaseHelper;
 import smart.pro.pattasukadai.app.DbPattasuHelper;
+import smart.pro.pattasukadai.app.GlideApp;
 import smart.pro.pattasukadai.app.HeaderFooterPageEvent;
+import smart.pro.pattasukadai.app.Imageutils;
 import smart.pro.pattasukadai.app.PatasuPdfConfig;
 import smart.pro.pattasukadai.app.Pattasu;
 import smart.pro.pattasukadai.app.PdfConfig;
@@ -77,8 +88,17 @@ import com.google.gson.Gson;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,6 +106,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -101,12 +122,12 @@ import static smart.pro.pattasukadai.app.AppConfig.shopNameKey;
 import static smart.pro.pattasukadai.app.AppConfig.shopPhoneKey;
 import static smart.pro.pattasukadai.app.AppConfig.user_id;
 
-public class MainActivity extends BaseActivity implements OnItemClick {
+public class MainActivity extends BaseActivity implements OnItemClick, Imageutils.ImageAttachmentListener {
 
     NestedScrollView nestScroll;
     TextView seller_name;
     TextView tittle;
-    ImageView action_settings, action_about;
+    ImageView action_settings, action_about, action_refrash;
     LinearLayout headerbar;
     RelativeLayout scroll;
     private ProgressDialog pDialog;
@@ -122,12 +143,23 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     TextView proName, proTotal, grandTotal;
     int selectedPosition = -1;
     MaterialButton addItems;
+    Imageutils imageutils;
+    String pdfPath = "";
 
     @Override
     protected void startDemo() {
         setContentView(R.layout.activity_main);
 
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
 
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.SEND_SMS}, 100);
+        } else {
+            //TODO
+        }
+
+        imageutils = new Imageutils(this);
         db = new DatabaseHelper(this);
         dbPattasuHelper = new DbPattasuHelper(this);
         pDialog = new ProgressDialog(this);
@@ -146,6 +178,14 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         quantity = findViewById(R.id.quantity);
         proTotal = findViewById(R.id.proTotal);
         grandTotal = findViewById(R.id.grandTotal);
+
+        action_refrash = findViewById(R.id.action_refrash);
+        action_refrash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAllData();
+            }
+        });
         no.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -214,8 +254,20 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         action_about.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplication(), InvoiceListActivity.class);
+//                Intent intent = new Intent(getApplication(), InvoiceListActivity.class);
+//                startActivity(intent);
+                Intent intent = new Intent(getApplication(), SplashActivity.class);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.remove(AppConfig.configKey);
+                editor.remove(AppConfig.auth_key);
+                editor.remove(AppConfig.user_id);
+                editor.remove(AppConfig.shopIdKey);
+                editor.remove(AppConfig.shopNameKey);
+                editor.remove(AppConfig.shopPhoneKey);
+                editor.remove(AppConfig.shopAddreesKey);
+                editor.commit();
                 startActivity(intent);
+                finishAffinity();
             }
         });
 
@@ -238,6 +290,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 mBottomSheetDialog = new RoundedBottomSheetDialog(MainActivity.this);
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.customer_details, null);
@@ -245,11 +298,15 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                 TextInputEditText whatsappNumber = dialogView.findViewById(R.id.whatsappNumber);
                 Button submitBtn = dialogView.findViewById(R.id.submitBtn);
                 Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
+                RadioButton eInvoice = dialogView.findViewById(R.id.eInvoice);
+                RadioButton hardInvoice = dialogView.findViewById(R.id.hardInvoice);
                 submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (customerName.getText().toString().length() <= 0 &&
-                                whatsappNumber.getText().toString().length() <= 0) {
+                        if (customerName.getText().toString().length() <= 0) {
+                            customerName.setText(whatsappNumber.getText().toString());
+                        }
+                        if (whatsappNumber.getText().toString().length() <= 0) {
                             Toast.makeText(getApplicationContext(), "Enter valid Contact", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -260,9 +317,8 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                         mainbean.setParticularbeans(particularbeans);
                         mainbean.setBuyerphone(whatsappNumber.getText().toString());
                         mainbean.setBuyername(customerName.getText().toString());
-                        getCreateInvoice(mainbean);
+                        getCreateInvoice(mainbean, eInvoice.isChecked());
                         bottomSheetCancel();
-
                     }
 
                 });
@@ -270,6 +326,30 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                     @Override
                     public void onClick(View v) {
                         bottomSheetCancel();
+                    }
+                });
+                eInvoice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            hardInvoice.setChecked(false);
+                            eInvoice.setChecked(true);
+                        } else {
+                            hardInvoice.setChecked(true);
+                            eInvoice.setChecked(false);
+                        }
+                    }
+                });
+                hardInvoice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            eInvoice.setChecked(false);
+                            hardInvoice.setChecked(true);
+                        } else {
+                            eInvoice.setChecked(true);
+                            hardInvoice.setChecked(false);
+                        }
                     }
                 });
                 mBottomSheetDialog.setContentView(dialogView);
@@ -331,6 +411,10 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         }
     }
 
+    public void print() {
+        onRestart();
+    }
+
     private void bottomSheetCancel() {
         if (mBottomSheetDialog != null) {
             mBottomSheetDialog.cancel();
@@ -355,7 +439,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             pDialog.dismiss();
     }
 
-    public void printFunction(Context context, Mainbean mainbean) {
+    public void printFunction(Context context, Mainbean mainbean, boolean isEInvoice) {
 
         try {
 
@@ -371,7 +455,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             FileOutputStream fOut = new FileOutputStream(file);
 
 
-            Document document = new Document(PageSize.B8, 30, 28, 40, 119);
+            Document document = new Document(new Rectangle(288, 512));
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
             /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -392,25 +476,31 @@ public class MainActivity extends BaseActivity implements OnItemClick {
 
             document.close();
 
+            Uri fileUri = Uri.fromFile(file);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
+//                Intent intent = new Intent(Intent.ACTION_VIEW);
+//                intent.setData(uri);
+//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                startActivity(intent);
             } else {
-                Intent target = new Intent(Intent.ACTION_VIEW);
-                target.setDataAndType(Uri.fromFile(file), "application/pdf");
-                Intent intent = Intent.createChooser(target, "Open File");
-                startActivity(intent);
+//                Intent target = new Intent(Intent.ACTION_VIEW);
+//                target.setDataAndType(Uri.fromFile(file), "application/pdf");
+//                Intent intent = Intent.createChooser(target, "Open File");
+//                startActivity(intent);
             }
+            particularbeans.clear();
+            mparticularItemAdapter.notifyData(particularbeans);
+            grandTotal.setText("");
+            new UploadInvoiceToServer().execute(imageutils.getPath(fileUri) + "@@" + mainbean.getBuyerphone());
 
-        } catch (Error | Exception e) {
+        } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
+            hideDialog();
         }
 
-        hideDialog();
+
     }
 
 
@@ -425,6 +515,134 @@ public class MainActivity extends BaseActivity implements OnItemClick {
             }
         }
     }
+
+    @Override
+    public void image_attachment(int from, String filename, Bitmap file, Uri uri) {
+
+    }
+
+    private class UploadInvoiceToServer extends AsyncTask<String, Integer, String> {
+        String filepath;
+        String mobile;
+        public long totalSize = 0;
+
+        @Override
+        protected void onPreExecute() {
+            // setting progress bar to zero
+            showDialog();
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            showDialog();
+            pDialog.setMessage("Please wait");
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            filepath = params[0].split("@@")[0];
+            mobile = params[0].split("@@")[1];
+            return uploadFile();
+        }
+
+        private String uploadFile() {
+            String responseString = null;
+
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost(AppConfig.URL_INVOICE_UPLOAD);
+            try {
+                AndroidMultiPartEntity entity = new AndroidMultiPartEntity(
+                        new AndroidMultiPartEntity.ProgressListener() {
+                            @Override
+                            public void transferred(long num) {
+                                publishProgress((int) ((num / (float) totalSize) * 100));
+                            }
+                        });
+
+                File sourceFile = new File(filepath);
+                // Adding file data to http body
+                entity.addPart("image", new FileBody(sourceFile));
+
+                totalSize = entity.getContentLength();
+                httppost.setEntity(entity);
+
+                // Making server call
+                HttpResponse response = httpclient.execute(httppost);
+                HttpEntity r_entity = response.getEntity();
+
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 200) {
+                    // Server response
+                    responseString = EntityUtils.toString(r_entity);
+
+                } else {
+                    responseString = "Error occurred! Http Status Code: "
+                            + statusCode;
+
+                }
+
+            } catch (ClientProtocolException e) {
+                responseString = e.toString();
+            } catch (IOException e) {
+                responseString = e.toString();
+            }
+
+            return responseString;
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.e("Response from server: ", result);
+            try {
+                JSONObject jsonObject = new JSONObject(result.toString());
+
+                if (!jsonObject.getBoolean("error")) {
+                    pdfPath = AppConfig.DOMAINPATH + "pdf/" + imageutils.getfilename_from_path(filepath);
+                    Bitly.shorten(pdfPath, new Bitly.Callback() {
+                        @Override
+                        public void onResponse(com.bitly.Response response) {
+                            Log.e("getApplink",response.getApplink());
+                            Log.e("getBitlink",response.getBitlink());
+                            Log.e("getUrl",response.getUrl());
+                            pdfPath = response.getBitlink();
+                        }
+
+                        @Override
+                        public void onError(Error error) {
+                            Log.e("xxxxxxxxxxxxxx",error.getErrorMessage());
+                        }
+                    });
+                    String msg = "Sri Vinayaga Sivakasi Pattsi Kadai. Thanks for purchasing. Your E-invoice. " + pdfPath;
+                    try {
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage(mobile, null, msg, null, null);
+                        Toast.makeText(getApplicationContext(), "Message Sent",
+                                Toast.LENGTH_LONG).show();
+                    } catch (Exception ex) {
+                        Toast.makeText(getApplicationContext(), ex.getMessage().toString(),
+                                Toast.LENGTH_LONG).show();
+                        ex.printStackTrace();
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed to send Invoice", Toast.LENGTH_SHORT).show();
+                }
+                Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Image not uploaded", Toast.LENGTH_SHORT).show();
+            }
+            hideDialog();
+            // showing the server response in an alert dialog
+            //showAlert(result);
+            super.onPostExecute(result);
+        }
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -487,7 +705,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
         return billNo;
     }
 
-    private void getCreateInvoice(Mainbean tempMainbean) {
+    private void getCreateInvoice(Mainbean tempMainbean, boolean isEInvoice) {
         this.pDialog.setMessage("Creating...");
         showDialog();
         StringRequest local16 = new StringRequest(1, CREATE_INVOICE, new Response.Listener<String>() {
@@ -505,7 +723,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                         tempMainbean.setTimestamp(s.toString());
                         tempMainbean.setDbid(dbId);
                         db.insertMainbean(tempMainbean);
-                        printFunction(getApplicationContext(), tempMainbean);
+                        printFunction(getApplicationContext(), tempMainbean, isEInvoice);
 
                     } else if (str.equals("Invalid authtoken")) {
                         logout();
@@ -574,7 +792,7 @@ public class MainActivity extends BaseActivity implements OnItemClick {
                                         dataObject.getString("title"),
                                         dataObject.getString("items"),
                                         dataObject.getString("price"),
-                                        dataObject.getString("id")
+                                        dataObject.getString("nos")
                                 );
                                 dbPattasuHelper.insertPattasu(pattasuBean);
                             } catch (Exception e) {
@@ -616,5 +834,13 @@ public class MainActivity extends BaseActivity implements OnItemClick {
     public void onBackPressed() {
         super.onBackPressed();
         finishAffinity();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (pDialog != null) {
+            hideDialog();
+        }
     }
 }

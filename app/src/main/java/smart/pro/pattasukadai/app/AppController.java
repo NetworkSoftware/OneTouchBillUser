@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.bitly.Bitly;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,8 @@ public class AppController extends Application {
         StrictMode.setThreadPolicy(policy);
 
         mInstance = this;
+        Bitly.initialize(this, "274ca5095071991793b0a7bb7f94840b6847fb44");
+
         init();
     }
 

@@ -153,11 +153,13 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
         print.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (customerName.getText().toString().length() <= 0 ||
-                        whatsappNumber.getText().toString().length() <= 0) {
-                    Toast.makeText(getApplicationContext(), "Enter all details", Toast.LENGTH_SHORT).show();
+                if(customerName.getText().toString().length()<=0){
+                    customerName.setText(whatsappNumber.getText().toString());
+                }
+                if (whatsappNumber.getText().toString().length() <= 0) {
+                    Toast.makeText(getApplicationContext(), "Enter valid Contact", Toast.LENGTH_SHORT).show();
                     return;
-                } else {
+                }else {
                     if (ContextCompat.checkSelfPermission(MainEditActivity.this,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             != PackageManager.PERMISSION_GRANTED) {

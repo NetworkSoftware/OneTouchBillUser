@@ -58,7 +58,7 @@ public class AppConfig {
     public static final String CHANGE_PASSWORD = DOMAINPATH + "change_password.php";
     public static final String URL_IMAGE_UPLOAD = ip + "/admin/fileUpload.php";
     public static final String VIDEO_PLAY = DOMAINPATH + "get_all_video.php";
-
+    public static final String URL_INVOICE_UPLOAD = DOMAINPATH + "fileUpload.php";
     public static final String USER_REG = DOMAINPATH + "create_user.php";
 
     // special character to prefix the otp. Make sure this character appears only once in the sms

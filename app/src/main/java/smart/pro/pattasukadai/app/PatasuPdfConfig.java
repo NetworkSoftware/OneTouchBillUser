@@ -44,17 +44,17 @@ public class PatasuPdfConfig {
         }
     }
 
-    private static BaseColor greenBase = new BaseColor(14, 157, 31);
+    private static BaseColor greenBase = new BaseColor(0, 0, 255);
     private static BaseColor whiteBase = new BaseColor(255, 255, 255);
     private static BaseColor greenLightBase = new BaseColor(142, 204, 74);
     private static BaseColor gray = new BaseColor(237, 237, 237);
 
-    private static Font titleFont = new Font(urName, 11, Font.UNDERLINE | Font.BOLD);
-    private static Font nameFont = new Font(urName, 13, Font.BOLD);
-    private static Font catFont = new Font(urName, 9, Font.BOLD);
-    private static Font catFontWhite = new Font(urName, 9, Font.BOLD);
-    private static Font catNormalFont = new Font(urName, 9, Font.NORMAL);
-    private static Font subFont = new Font(urName, 7, Font.NORMAL);
+    private static Font titleFont = new Font(urName, 8, Font.UNDERLINE | Font.BOLD, greenBase);
+    private static Font nameFont = new Font(urName, 10, Font.BOLD, greenBase);
+    private static Font catFont = new Font(urName, 6, Font.BOLD, greenBase);
+    private static Font catFontWhite = new Font(urName, 6, Font.BOLD, greenBase);
+    private static Font catNormalFont = new Font(urName, 6, Font.NORMAL, greenBase);
+    private static Font subFont = new Font(urName, 4, Font.NORMAL, greenBase);
     private static Font invoiceFont = new Font(urName, 20, Font.BOLD, greenBase);
 
     public static void addMetaData(Document document) {
@@ -67,16 +67,15 @@ public class PatasuPdfConfig {
 
     public static void addContent(Document document, Mainbean mainbean, Context context) throws Exception {
 
-        invoiceFont = new Font(urName, 20, Font.BOLD, greenBase);
+        invoiceFont = new Font(urName, 12, Font.BOLD, greenBase);
 
 
         PdfPTable table1 = new PdfPTable(1);
         table1.setWidthPercentage(100);
         table1.setWidths(new int[]{1});
 
-        table1.addCell(createTextCellCenter("PATASU KADAI", nameFont));
-        table1.addCell(createTextCellCenter(mainbean.selleraddress, catFont));
-        table1.addCell(createTextCellCenter("\n", catFont));
+        table1.addCell(createTextCellCenter("Sri Vinayaka\nSivakasi Patasu Kadai", nameFont, true));
+        table1.addCell(createTextCellCenter(mainbean.sellername + "\n" + mainbean.selleraddress + "\nPh:" + mainbean.sellerphone, catFont, true));
 
         table1.setSplitLate(false);
         document.add(table1);
@@ -85,21 +84,29 @@ public class PatasuPdfConfig {
         table2.setWidthPercentage(100);
         table2.setWidths(new int[]{1});
 
-        table2.addCell(createTextLeft("Name:" + mainbean.buyername, catNormalFont));
-        table2.addCell(createTextLeft("Mobile No:" + mainbean.buyerphone, catNormalFont));
-        table2.addCell(createTextLeft("\n", catFont));
-
+        table2.addCell(createTextLeft("Customer Name: " + mainbean.buyername, catNormalFont, false));
+        table2.addCell(createTextLeft("Mobile No: " + mainbean.buyerphone, catNormalFont, false));
+        String date = "";
+        if (mainbean.getTimestamp() != null && mainbean.getTimestamp().length() > 0) {
+            date = mainbean.getTimestamp().split(" ")[0];
+        } else {
+            Date d = new Date();
+            CharSequence s = DateFormat.format("dd-MM-yyyy", d.getTime());
+            date = s.toString();
+        }
+        table2.addCell(createTextLeft("Date: " + date.split(" ")[0], catNormalFont, true));
         table2.setSplitLate(false);
         document.add(table2);
 
-        PdfPTable table3 = new PdfPTable(5);
+        PdfPTable table3 = new PdfPTable(6);
         table3.setWidthPercentage(100);
-        table3.setWidths(new float[]{0.5f, 2.5f, 1, 1, 1});
-        table3.addCell(createTextCellBorder("No", catFont));
-        table3.addCell(createTextCellBorder("Particulars", catFont));
-        table3.addCell(createTextCellBorder("Quantity", catFont));
-        table3.addCell(createTextCellBorder("PerQuan/Price", catFont));
-        table3.addCell(createTextCellBorder("Total Amount", catFont));
+        table3.setWidths(new float[]{0.5f, 0.5f, 2f, 1, 1, 1});
+        table3.addCell(createTextLeft("S.No", catFont, false));
+        table3.addCell(createTextLeft("P.No", catFont, false));
+        table3.addCell(createTextLeft("Particulars", catFont, false));
+        table3.addCell(createTextLeft("Qty", catFont, false));
+        table3.addCell(createTextLeft("Rate", catFont, false));
+        table3.addCell(createTextLeft("Amount", catFont, false));
         double grantTotal = 0;
 
         ArrayList<Particularbean> particularbeans = mainbean.getParticularbeans();
@@ -107,26 +114,52 @@ public class PatasuPdfConfig {
             Particularbean fields = particularbeans.get(i);
             int quant = Integer.parseInt(fields.getQuantity());
             int perquant = Integer.parseInt(fields.getPerquantity());
-            table3.addCell(createTextCellBorderLeft(fields.getId(), catNormalFont));
-            table3.addCell(createTextCellBorderLeft(fields.getParticular(), catNormalFont));
-            table3.addCell(createTextCellBorderLeft(fields.getQuantity(), catNormalFont));
-            table3.addCell(createTextCellBorderLeft(fields.getPerquantity(), catNormalFont));
-            float quan = Float.parseFloat(fields.getQuantity());
+            table3.addCell(createTextLeft(i + 1 + "", catNormalFont, false));
+            table3.addCell(createTextLeft(fields.getId(), catNormalFont, false));
+            table3.addCell(createTextLeft(fields.getParticular(), catNormalFont, false));
             float perQuanPri = Float.parseFloat(fields.getPerquantity());
+            table3.addCell(createTextLeft(fields.getQuantity(), catNormalFont, false));
+            table3.addCell(createTextLeft(round(perQuanPri, 2), catNormalFont, false));
+            float quan = Float.parseFloat(fields.getQuantity());
             double total = quan * perQuanPri;
             grantTotal = grantTotal + total;
 
-            table3.addCell(createTextCellBorderLeft(round(total, 2), catFont));
+            table3.addCell(createTextLeft(round(total, 2), catFont, false));
 
         }
-        table3.addCell(createTextCellBootomparticlure("", catNormalFont));
-        table3.addCell(createTextCellBorderbootomtotal(AppConfig.convertToIndianCurrency(grantTotal + ""), catNormalFont));
-        table3.addCell(createTextCellBorderbootomtotal("", catNormalFont));
-        table3.addCell(createTextCellBorderbootomtotal("", catNormalFont));
-        table3.addCell(createTextCellToplessRight(round(grantTotal, 2) + "", catFont));
-
         table3.setSplitLate(false);
         document.add(table3);
+
+        PdfPTable table40 = new PdfPTable(1);
+        table40.setWidthPercentage(100);
+        table40.setWidths(new float[]{1});
+        table40.addCell(createTextLeft("\n", catNormalFont, false));
+        table40.setSplitLate(false);
+        document.add(table40);
+        PdfPTable table4 = new PdfPTable(6);
+        table4.setWidthPercentage(100);
+        table4.setWidths(new float[]{0.5f, 0.5f, 2f, 1, 1, 1});
+        table4.addCell(createTextLeft("", catNormalFont, false));
+        table4.addCell(createTextLeft("", catNormalFont, false));
+        table4.addCell(createTextLeft(AppConfig.convertToIndianCurrency(grantTotal + ""), catNormalFont, false));
+        table4.addCell(createTextLeft("", catNormalFont, false));
+        table4.addCell(createTextLeft("", catNormalFont, false));
+        table4.addCell(createTextLeft(round(grantTotal, 2) + "", catFont, false));
+        table4.setSplitLate(false);
+        document.add(table4);
+
+        PdfPTable table5 = new PdfPTable(1);
+        table5.setWidthPercentage(100);
+        table5.setWidths(new float[]{1});
+        table5.addCell(createTextcenter("\n", catNormalFont, true));
+        table5.addCell(createTextcenter("E & OE", subFont, false));
+        table5.addCell(createTextcenter("FOR EXCHANGE POLICY PLEASE VISIT WWW.PATTASUKADAI.COM/FAQ", subFont, true));
+        table5.addCell(createTextcenter("Tax Invoice/Bill of Supply -Sale", subFont, false));
+        table5.addCell(createTextcenter("Bill No: " + AppConfig.intToString(Integer.parseInt(mainbean.getDbid()), 5)+ " Date : " + date, subFont, true));
+        table5.addCell(createTextcenter("Its is a computer generated invoice generated original / customer copy", subFont, false));
+        table5.addCell(createTextcenter("***Thank you for you purchase, visit again***", subFont, false));
+        table5.setSplitLate(false);
+        document.add(table5);
 
     }
 
@@ -171,14 +204,31 @@ public class PatasuPdfConfig {
         return cell;
     }
 
-    public static PdfPCell createTextLeft(String text, Font font) throws DocumentException, IOException {
+    public static PdfPCell createTextLeft(String text, Font font, boolean isBorder) throws DocumentException, IOException {
         PdfPCell cell = new PdfPCell();
         Paragraph p = new Paragraph(text, font);
         p.setAlignment(Element.ALIGN_LEFT);
         cell.addElement(p);
-        cell.setPaddingLeft(5);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setBorder(Rectangle.NO_BORDER);
+        if (isBorder) {
+            cell.setPaddingBottom(10);
+            cell.setCellEvent(new DottedCell(Rectangle.BOTTOM));
+        }
+        return cell;
+    }
+
+    public static PdfPCell createTextcenter(String text, Font font, boolean isBorder) throws DocumentException, IOException {
+        PdfPCell cell = new PdfPCell();
+        Paragraph p = new Paragraph(text, font);
+        p.setAlignment(Element.ALIGN_CENTER);
+        cell.addElement(p);
+        cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        cell.setBorder(Rectangle.NO_BORDER);
+        if (isBorder) {
+            cell.setPaddingBottom(10);
+            cell.setCellEvent(new DottedCell(Rectangle.BOTTOM));
+        }
         return cell;
     }
 
@@ -513,13 +563,17 @@ public class PatasuPdfConfig {
         return cell;
     }
 
-    public static PdfPCell createTextCellCenter(String text, Font font) throws DocumentException, IOException {
+    public static PdfPCell createTextCellCenter(String text, Font font, boolean isBorder) throws DocumentException, IOException {
         PdfPCell cell = new PdfPCell();
         Paragraph p = new Paragraph(text, font);
         p.setAlignment(Element.ALIGN_CENTER);
         cell.addElement(p);
         cell.setVerticalAlignment(Element.ALIGN_BOTTOM);
         cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPaddingBottom(10);
+        if (isBorder) {
+            cell.setCellEvent(new DottedCell(Rectangle.BOTTOM));
+        }
         return cell;
     }
 
@@ -565,7 +619,7 @@ public class PatasuPdfConfig {
             PdfContentByte canvas = canvases[PdfPTable.LINECANVAS];
             canvas.saveState();
             canvas.setColorStroke(greenBase);
-            canvas.setLineDash(2, 6, 2);
+            canvas.setLineDash(1, 3, 1);
             if ((border & PdfPCell.TOP) == PdfPCell.TOP) {
                 canvas.moveTo(position.getRight(), position.getTop());
                 canvas.lineTo(position.getLeft(), position.getTop());

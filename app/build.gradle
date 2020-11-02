@@ -78,4 +78,8 @@ dependencies {
 //ColorPicker
     implementation project(':colorslider')
     implementation project(':exo-player')
+
+    implementation group: 'com.bitly', name: 'bitlysdk', version: '1.0.0'
+
+
 }

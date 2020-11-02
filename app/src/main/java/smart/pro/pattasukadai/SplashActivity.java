@@ -64,6 +64,7 @@ public class SplashActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.passwordText);
         if (sharedpreferences.contains(AppConfig.configKey)) {
             username.setText(sharedpreferences.getString(AppConfig.configKey, ""));
+            password.requestFocus();
         }
 
         FloatingActionButton submitBtn = findViewById(R.id.submitBtn);
