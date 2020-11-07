@@ -52,7 +52,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/perQuantityText"
+                    android:id="@+id/whatsappNumberText"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -68,7 +68,9 @@
                         android:layout_gravity="center"
                         android:backgroundTint="@color/gray"
                         android:fontFamily="@font/sans"
-                        android:inputType="numberDecimal"
+                        android:inputType="number"
+                        android:maxLength="10"
+                        android:digits="0123456789"
                         android:textColorHint="#c6c6c6"
                         android:textSize="15dp" />
 

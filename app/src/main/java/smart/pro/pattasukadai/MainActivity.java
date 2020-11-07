@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -150,15 +151,22 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
     protected void startDemo() {
         setContentView(R.layout.activity_main);
 
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
-
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.SEND_SMS}, 100);
-        } else {
-            //TODO
+        int permissionPhone = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        int permissionStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionSms = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
+        ArrayList<String> strings = new ArrayList<>();
+        if (permissionPhone != PackageManager.PERMISSION_GRANTED) {
+            strings.add(Manifest.permission.READ_PHONE_STATE);
         }
-
+        if (permissionStorage != PackageManager.PERMISSION_GRANTED) {
+            strings.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (permissionSms != PackageManager.PERMISSION_GRANTED) {
+            strings.add(Manifest.permission.SEND_SMS);
+        }
+        if(strings.size()>0) {
+            ActivityCompat.requestPermissions(this, strings.toArray(new String[strings.size()]), 100);
+        }
         imageutils = new Imageutils(this);
         db = new DatabaseHelper(this);
         dbPattasuHelper = new DbPattasuHelper(this);
@@ -295,30 +303,52 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
                 LayoutInflater inflater = MainActivity.this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.customer_details, null);
                 TextInputEditText customerName = dialogView.findViewById(R.id.customerName);
+                customerName.requestFocus();
                 TextInputEditText whatsappNumber = dialogView.findViewById(R.id.whatsappNumber);
+                TextInputLayout whatsappNumberText = dialogView.findViewById(R.id.whatsappNumberText);
                 Button submitBtn = dialogView.findViewById(R.id.submitBtn);
                 Button cancelBtn = dialogView.findViewById(R.id.cancelBtn);
                 RadioButton eInvoice = dialogView.findViewById(R.id.eInvoice);
                 RadioButton hardInvoice = dialogView.findViewById(R.id.hardInvoice);
+                whatsappNumber.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if (whatsappNumber.toString().length() > 0) {
+                            whatsappNumberText.setError(null);
+                        }
+                    }
+                });
+
                 submitBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (customerName.getText().toString().length() <= 0) {
                             customerName.setText(whatsappNumber.getText().toString());
+
+                        } else if (whatsappNumber.getText().toString().length() <= 0) {
+                            whatsappNumberText.setError("Enter the Phone No");
+                            whatsappNumberText.requestFocus();
+                        }else {
+                            Mainbean mainbean = new Mainbean();
+                            mainbean.setSellername(sharedpreferences.getString(shopNameKey, ""));
+                            mainbean.setSellerphone(sharedpreferences.getString(shopPhoneKey, ""));
+                            mainbean.setSelleraddress(sharedpreferences.getString(shopAddreesKey, ""));
+                            mainbean.setParticularbeans(particularbeans);
+                            mainbean.setBuyerphone(whatsappNumber.getText().toString());
+                            mainbean.setBuyername(customerName.getText().toString());
+                            getCreateInvoice(mainbean, eInvoice.isChecked());
+                            bottomSheetCancel();
                         }
-                        if (whatsappNumber.getText().toString().length() <= 0) {
-                            Toast.makeText(getApplicationContext(), "Enter valid Contact", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Mainbean mainbean = new Mainbean();
-                        mainbean.setSellername(sharedpreferences.getString(shopNameKey, ""));
-                        mainbean.setSellerphone(sharedpreferences.getString(shopPhoneKey, ""));
-                        mainbean.setSelleraddress(sharedpreferences.getString(shopAddreesKey, ""));
-                        mainbean.setParticularbeans(particularbeans);
-                        mainbean.setBuyerphone(whatsappNumber.getText().toString());
-                        mainbean.setBuyername(customerName.getText().toString());
-                        getCreateInvoice(mainbean, eInvoice.isChecked());
-                        bottomSheetCancel();
                     }
 
                 });
@@ -489,10 +519,10 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
 //                Intent intent = Intent.createChooser(target, "Open File");
 //                startActivity(intent);
             }
-            particularbeans.clear();
+            particularbeans = new ArrayList<>();
             mparticularItemAdapter.notifyData(particularbeans);
             grandTotal.setText("");
-            new UploadInvoiceToServer().execute(imageutils.getPath(fileUri) + "@@" + mainbean.getBuyerphone());
+            new UploadInvoiceToServer().execute(imageutils.getPath(fileUri) + "@@" + mainbean.getBuyerphone() + "@@" + mainbean.getDbid());
 
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
@@ -524,6 +554,7 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
     private class UploadInvoiceToServer extends AsyncTask<String, Integer, String> {
         String filepath;
         String mobile;
+        String id;
         public long totalSize = 0;
 
         @Override
@@ -544,6 +575,7 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
         protected String doInBackground(String... params) {
             filepath = params[0].split("@@")[0];
             mobile = params[0].split("@@")[1];
+            id = params[0].split("@@")[2];
             return uploadFile();
         }
 
@@ -604,36 +636,25 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
                     Bitly.shorten(pdfPath, new Bitly.Callback() {
                         @Override
                         public void onResponse(com.bitly.Response response) {
-                            Log.e("getApplink",response.getApplink());
-                            Log.e("getBitlink",response.getBitlink());
-                            Log.e("getUrl",response.getUrl());
-                            pdfPath = response.getBitlink();
+                            if(response.getBitlink()!=null){
+                                pdfPath = response.getBitlink();
+                            }
+                            sendSmsToCustomer(mobile,pdfPath,id);
                         }
 
                         @Override
                         public void onError(Error error) {
-                            Log.e("xxxxxxxxxxxxxx",error.getErrorMessage());
+                            Log.e("xxxxxxxxxxxxxx", error.getErrorMessage());
+                            sendSmsToCustomer(mobile,pdfPath,id);
                         }
                     });
-                    String msg = "Sri Vinayaga Sivakasi Pattsi Kadai. Thanks for purchasing. Your E-invoice. " + pdfPath;
-                    try {
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(mobile, null, msg, null, null);
-                        Toast.makeText(getApplicationContext(), "Message Sent",
-                                Toast.LENGTH_LONG).show();
-                    } catch (Exception ex) {
-                        Toast.makeText(getApplicationContext(), ex.getMessage().toString(),
-                                Toast.LENGTH_LONG).show();
-                        ex.printStackTrace();
-                    }
 
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to send Invoice", Toast.LENGTH_SHORT).show();
                 }
                 Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-
             } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Image not uploaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT).show();
             }
             hideDialog();
             // showing the server response in an alert dialog
@@ -641,6 +662,22 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
             super.onPostExecute(result);
         }
 
+
+    }
+    private void sendSmsToCustomer(String mobile,String pdfPathTemp,String billNoTemp) {
+        String msg = "Sri Vinayaga Sivakasi Pattsi Kadai. Thanks for purchasing. Your E-invoice. " + pdfPathTemp;
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(mobile, null, msg, null, null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+      /*  AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setContentView(R.layout.success_dialog);
+        alertDialog.setTitle("Alert");
+        TextView billNo = alertDialog.findViewById(R.id.billNo);
+        billNo.setText(billNoTemp);
+        alertDialog.show();*/
     }
 
 
@@ -711,7 +748,6 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
         StringRequest local16 = new StringRequest(1, CREATE_INVOICE, new Response.Listener<String>() {
             public void onResponse(String paramString) {
                 Log.d("tag", "Register Response: " + paramString.toString());
-                hideDialog();
                 try {
                     JSONObject localJSONObject1 = new JSONObject(paramString);
                     String str = localJSONObject1.getString("message");
@@ -733,6 +769,7 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
                 } catch (JSONException localJSONException) {
                     localJSONException.printStackTrace();
                 }
+                hideDialog();
             }
         }, new Response.ErrorListener() {
             public void onErrorResponse(VolleyError paramVolleyError) {

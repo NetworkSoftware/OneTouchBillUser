@@ -8,6 +8,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.bitly.Bitly;
+import com.bitly.Error;
+import com.bitly.Response;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,13 +43,25 @@ public class AppController extends Application {
         init();
     }
 
-
     private void init() {
         AutomatedSupportedLocales();
         manualSupportedLocales();
+        Bitly.shorten("http://thestockbazaar.com", new Bitly.Callback() {
+            @Override
+            public void onResponse(Response response) {
+                // response provides a Response object which contains the shortened Bitlink
+                // response includes a status code
+                // Your custom logic goes here...
+            }
 
+            @Override
+            public void onError(Error error) {
+
+            }
+        });
 
     }
+
 
     private void AutomatedSupportedLocales() {
 
