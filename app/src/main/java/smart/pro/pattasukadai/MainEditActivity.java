@@ -319,7 +319,7 @@ public class MainEditActivity extends BaseActivity implements OnItemClick {
             FileOutputStream fOut = new FileOutputStream(file);
 
 
-            Document document = new Document(PageSize.A4, 30, 28, 40, 119);
+            Document document = new Document(PageSize.A4, 0, 0, 0, 0);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
            /* ByteArrayOutputStream stream = new ByteArrayOutputStream();

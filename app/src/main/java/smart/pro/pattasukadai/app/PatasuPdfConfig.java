@@ -50,12 +50,12 @@ public class PatasuPdfConfig {
     private static BaseColor gray = new BaseColor(237, 237, 237);
 
     private static Font titleFont = new Font(urName, 8, Font.UNDERLINE | Font.BOLD, greenBase);
-    private static Font nameFont = new Font(urName, 10, Font.BOLD, greenBase);
-    private static Font catFont = new Font(urName, 6, Font.BOLD, greenBase);
+    private static Font nameFont = new Font(urName, 45, Font.BOLD, greenBase);
+    private static Font catFont = new Font(urName, 25, Font.BOLD, greenBase);
     private static Font catFontWhite = new Font(urName, 6, Font.BOLD, greenBase);
-    private static Font catNormalFont = new Font(urName, 6, Font.NORMAL, greenBase);
-    private static Font subFont = new Font(urName, 4, Font.NORMAL, greenBase);
-    private static Font invoiceFont = new Font(urName, 20, Font.BOLD, greenBase);
+    private static Font catNormalFont = new Font(urName, 25, Font.NORMAL, greenBase);
+    private static Font subFont = new Font(urName, 16, Font.NORMAL, greenBase);
+    private static Font invoiceFont = new Font(urName, 0, Font.BOLD, greenBase);
 
     public static void addMetaData(Document document) {
         document.addTitle("My first PDF");
@@ -67,7 +67,7 @@ public class PatasuPdfConfig {
 
     public static void addContent(Document document, Mainbean mainbean, Context context) throws Exception {
 
-        invoiceFont = new Font(urName, 12, Font.BOLD, greenBase);
+        //invoiceFont = new Font(urName, 20, Font.BOLD, greenBase);
 
 
         PdfPTable table1 = new PdfPTable(1);
@@ -101,8 +101,8 @@ public class PatasuPdfConfig {
         PdfPTable table3 = new PdfPTable(6);
         table3.setWidthPercentage(100);
         table3.setWidths(new float[]{0.5f, 0.5f, 2f, 1, 1, 1});
-        table3.addCell(createTextLeft("S.No", catFont, false));
-        table3.addCell(createTextLeft("P.No", catFont, false));
+        table3.addCell(createTextLeft("SNo", catFont, false));
+        table3.addCell(createTextLeft("PNo", catFont, false));
         table3.addCell(createTextLeft("Particulars", catFont, false));
         table3.addCell(createTextLeft("Qty", catFont, false));
         table3.addCell(createTextLeft("Rate", catFont, false));

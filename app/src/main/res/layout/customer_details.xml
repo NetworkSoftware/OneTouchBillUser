@@ -87,12 +87,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="false"
                     android:text="SMS (E-Invoice)" />
 
                 <RadioButton
                     android:id="@+id/hardInvoice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clickable="false"
                     android:layout_weight="1"
                     android:text="Print (Hard Copy)" />
             </LinearLayout>

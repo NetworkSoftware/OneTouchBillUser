@@ -484,8 +484,12 @@ public class MainActivity extends BaseActivity implements OnItemClick, Imageutil
             }
             FileOutputStream fOut = new FileOutputStream(file);
 
-
-            Document document = new Document(new Rectangle(288, 512));
+            float left = 0;
+            float right = 0;
+            float top = 0;
+            float bottom = 0;
+            Document document = new Document(PageSize.A2, left, right, top, bottom);
+         //   Document document = new Document(PageSize.A4, 30, 28, 40, 119);
             PdfWriter pdfWriter = PdfWriter.getInstance(document, fOut);
 
             /*ByteArrayOutputStream stream = new ByteArrayOutputStream();
